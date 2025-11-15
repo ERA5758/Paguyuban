@@ -1,0 +1,16 @@
+{
+  "name": "Pujasera Chika AI",
+  "short_name": "Pujasera POS",
+  "description": "Aplikasi Kasir untuk Pujasera & Grup UMKM F&B",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020817",
+  "theme_color": "#facc15",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
