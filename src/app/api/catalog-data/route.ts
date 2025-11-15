@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // 1. Find the main Pujasera document by its unique catalogSlug
+    // 1. Find the main Paguyuban document by its unique catalogSlug
     const pujaseraQuery = db.collection('stores').where('catalogSlug', '==', slug).limit(1);
     const pujaseraSnapshot = await pujaseraQuery.get();
 
@@ -31,24 +31,21 @@ export async function GET(req: NextRequest) {
 
     const pujaseraGroupSlug = pujaseraData.pujaseraGroupSlug;
     if (!pujaseraGroupSlug) {
-      return NextResponse.json({ error: 'Konfigurasi grup pujasera tidak ditemukan.' }, { status: 500 });
+      return NextResponse.json({ error: 'Konfigurasi grup paguyuban tidak ditemukan.' }, { status: 500 });
     }
 
-    // 3. Find all active tenants in the pujasera group, excluding the pujasera document itself
+    // 3. Find all active tenants in the paguyuban group, excluding the paguyuban document itself
     const tenantsQuery = db.collection('stores')
       .where('pujaseraGroupSlug', '==', pujaseraGroupSlug)
-      .where('__name__', '!=', pujaseraDoc.id);
+      .where('__name__', '!=', pujaseraDoc.id)
+      .where('isPosEnabled', '==', true); // Only fetch tenants with enabled POS
       
     const tenantsSnapshot = await tenantsQuery.get();
 
     // 4. Fetch products for each active tenant
     const tenantProductPromises = tenantsSnapshot.docs.map(async (tenantDoc) => {
         const tenantData = tenantDoc.data();
-        // Skip tenants that are explicitly disabled
-        if (tenantData.isPosEnabled === false) {
-            return null;
-        }
-
+        
         const productsSnapshot = await db.collection('stores').doc(tenantDoc.id).collection('products').orderBy('name').get();
         const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
@@ -61,7 +58,7 @@ export async function GET(req: NextRequest) {
 
     const tenantsWithProducts = (await Promise.all(tenantProductPromises)).filter(Boolean);
     
-    // 5. Fetch active promotions for the pujasera
+    // 5. Fetch active promotions for the paguyuban
     const promotionsSnapshot = await db.collection('stores').doc(pujaseraDoc.id).collection('redemptionOptions')
         .where('isActive', '==', true)
         .get();

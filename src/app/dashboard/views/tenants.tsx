@@ -240,11 +240,11 @@ export default function TenantsManagement() {
                         Array.from({ length: 3 }).map((_, i) => (
                             <TableRow key={i}>
                                 <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                                <TableCell className="text-center"><Skeleton className="h-10 w-24 mx-auto" /></TableCell>
+                                <TableCell className="text-center"><Skeleton className="h-6 w-20 mx-auto" /></TableCell>
                             </TableRow>
                         ))
                     ) : (
-                        pujaseraTenants.map((tenant) => (
+                        pujaseraTenants.filter(t => t.id !== activeStore?.id).map((tenant) => (
                             <TableRow key={tenant.id} onClick={() => handleRowClick(tenant)} className="cursor-pointer">
                                 <TableCell className="font-medium">{tenant.name}</TableCell>
                                 <TableCell className="text-center w-48">
