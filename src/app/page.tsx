@@ -23,7 +23,7 @@ export default function WelcomePage() {
           <ChefHat className="h-20 w-20 animate-pulse-slow text-primary" />
         </div>
         <h1 className="font-headline text-3xl font-bold tracking-wider text-foreground">
-          PUJASERA Chika AI
+          PAGUYUBAN TENANT
         </h1>
         <p className="text-sm text-muted-foreground">
           Mengarahkan ke halaman login...

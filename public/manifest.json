@@ -1,16 +1,17 @@
+
 {
-  "name": "Pujasera Chika AI",
-  "short_name": "Pujasera POS",
-  "description": "Aplikasi Kasir untuk Pujasera & Grup UMKM F&B",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#020817",
-  "theme_color": "#facc15",
+  "name": "PAGUYUBAN TENANT",
+  "short_name": "Tenant",
+  "description": "Platform untuk Paguyuban Tenant",
   "icons": [
     {
       "src": "/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }
-  ]
+  ],
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#1E1E1E",
+  "theme_color": "#FFBF00"
 }
