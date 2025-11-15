@@ -129,7 +129,7 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
         icon: <Store />,
         roles: ['admin', 'cashier', 'kitchen'],
         items: [
-            { view: 'overview', label: 'Overview', icon: <LayoutGrid />, roles: ['admin', 'cashier'], tourId: 'sidebar-overview' },
+            { view: 'overview', label: 'Overview', icon: <LayoutGrid />, roles: ['admin'], tourId: 'sidebar-overview' },
             { view: 'pos', label: 'Kasir POS', icon: <Armchair />, roles: ['admin', 'cashier'], tourId: 'sidebar-pos' },
             { view: 'kitchen', label: 'Dapur', icon: <Store />, roles: ['admin', 'kitchen'], tourId: 'sidebar-kitchen' },
             { view: 'transactions', label: 'Transaksi', icon: <History />, roles: ['admin', 'cashier'], tourId: 'sidebar-transactions' },
@@ -138,11 +138,11 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
     {
         group: 'Manajemen Tenant',
         icon: <Wallet />,
-        roles: ['admin', 'cashier'],
+        roles: ['admin'],
         items: [
-            { view: 'products', label: 'Produk', icon: <BookOpenCheck />, roles: ['admin', 'cashier'], tourId: 'sidebar-products' },
+            { view: 'products', label: 'Produk', icon: <BookOpenCheck />, roles: ['admin'], tourId: 'sidebar-products' },
             { view: 'employees', label: 'Karyawan', icon: <Users />, roles: ['admin'], tourId: 'sidebar-employees' },
-            { view: 'customers', label: 'Pelanggan', icon: <Contact2 />, roles: ['admin', 'cashier'], tourId: 'sidebar-customers' },
+            { view: 'customers', label: 'Pelanggan', icon: <Contact2 />, roles: ['admin'], tourId: 'sidebar-customers' },
         ]
     },
     {
@@ -159,7 +159,7 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
         icon: <Settings />,
         roles: ['admin', 'pujasera_admin'],
         items: [
-            { view: 'receipt-settings', label: 'Pengaturan Struk', icon: <Receipt />, roles: ['admin', 'pujasera_admin'], tourId: 'sidebar-receipt-settings' },
+            { view: 'receipt-settings', label: 'Pengaturan Struk', icon: <Receipt />, roles: ['admin'], tourId: 'sidebar-receipt-settings' },
             { view: 'settings', label: 'Pengaturan Akun', icon: <Settings />, roles: ['admin', 'pujasera_admin'], tourId: 'sidebar-settings' },
         ]
     },
