@@ -24,8 +24,8 @@ import { Loader, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 const registerSchema = z.object({
-  pujaseraName: z.string().min(3, { message: 'Nama pujasera minimal 3 karakter.' }),
-  pujaseraLocation: z.string().min(3, { message: 'Lokasi pujasera minimal 3 karakter.' }),
+  pujaseraName: z.string().min(3, { message: 'Nama paguyuban minimal 3 karakter.' }),
+  pujaseraLocation: z.string().min(3, { message: 'Lokasi paguyuban minimal 3 karakter.' }),
   adminName: z.string().min(2, { message: 'Nama Anda minimal 2 karakter.' }),
   email: z.string().email({ message: 'Format email tidak valid.' }),
   whatsapp: z.string().min(10, { message: 'Nomor WhatsApp minimal 10 digit.' }),
@@ -67,8 +67,8 @@ export default function RegisterPujaseraPage() {
 
         if (response.ok) {
             toast({
-                title: 'Pendaftaran Pujasera Berhasil!',
-                description: 'Grup pujasera dan akun admin Anda telah dibuat. Silakan login.',
+                title: 'Pendaftaran Paguyuban Berhasil!',
+                description: 'Grup paguyuban dan akun admin Anda telah dibuat. Silakan login.',
             });
             router.push('/login');
         } else {
@@ -96,21 +96,21 @@ export default function RegisterPujaseraPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleRegister)}>
               <CardHeader className="text-center">
-                <CardTitle className="font-headline text-2xl tracking-wider">DAFTARKAN PUJASERA ANDA</CardTitle>
+                <CardTitle className="font-headline text-2xl tracking-wider">DAFTARKAN PAGUYUBAN ANDA</CardTitle>
                 <CardDescription>
-                  Buat grup pujasera baru dan akun admin utama Anda.
+                  Buat grup paguyuban baru dan akun admin utama Anda.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4">
-                <p className="text-sm font-semibold text-primary">Informasi Pujasera / Grup</p>
+                <p className="text-sm font-semibold text-primary">Informasi Paguyuban / Grup</p>
                 <FormField
                   control={form.control}
                   name="pujaseraName"
                   render={({ field }) => (
                     <FormItem>
-                      <Label>Nama Pujasera / Grup UMKM</Label>
+                      <Label>Nama Paguyuban / Grup UMKM</Label>
                       <FormControl>
-                        <Input placeholder="Contoh: Pujasera Blok M" {...field} />
+                        <Input placeholder="Contoh: Paguyuban Tenant Sejahtera" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -121,7 +121,7 @@ export default function RegisterPujaseraPage() {
                   name="pujaseraLocation"
                   render={({ field }) => (
                     <FormItem>
-                      <Label>Lokasi Pujasera</Label>
+                      <Label>Lokasi Paguyuban</Label>
                       <FormControl>
                         <Input placeholder="Contoh: Jakarta Selatan" {...field} />
                       </FormControl>
@@ -151,7 +151,7 @@ export default function RegisterPujaseraPage() {
                     <FormItem>
                       <Label>Email (untuk login)</Label>
                       <FormControl>
-                        <Input type="email" placeholder="admin@pujasera.com" {...field} />
+                        <Input type="email" placeholder="admin@paguyuban.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -211,7 +211,7 @@ export default function RegisterPujaseraPage() {
               <CardFooter className="flex-col gap-4">
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-                  Daftarkan Pujasera
+                  Daftarkan Paguyuban
                 </Button>
                 <p className="text-center text-sm text-muted-foreground">
                   Sudah punya akun? <Link href="/login" className="font-semibold text-primary hover:underline">Masuk di sini</Link>

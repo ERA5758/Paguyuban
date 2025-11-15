@@ -204,7 +204,7 @@ export default function LoginPage() {
               </Form>
           </CardContent>
            <CardFooter className="text-center text-sm flex-col gap-2">
-                <p>Belum punya akun? <Link href="/register" className="font-semibold text-primary hover:underline">Daftar Pujasera Baru</Link></p>
+                <p>Belum punya akun? <Link href="/register" className="font-semibold text-primary hover:underline">Daftar Paguyuban Baru</Link></p>
             </CardFooter>
         </Card>
 
@@ -230,7 +230,7 @@ export default function LoginPage() {
         </Card>
         
         <div className="space-y-4">
-            <Link href="https://pujasera.era5758.co.id" target="_blank" className="block">
+             <Link href="https://pujasera.era5758.co.id" target="_blank" className="block">
                 <Card className="text-center hover:bg-muted">
                     <CardHeader>
                         <CardTitle className="text-lg font-headline tracking-wider">APLIKASI PUJASERA TERPUSAT</CardTitle>
@@ -249,6 +249,17 @@ export default function LoginPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center items-center p-4">
                         <ChefHat className="h-12 w-12 text-primary" />
+                    </CardContent>
+                </Card>
+            </Link>
+             <Link href="https://tenant.era5758.co.id" target="_blank" className="block">
+                <Card className="text-center hover:bg-muted">
+                    <CardHeader>
+                        <CardTitle className="text-lg font-headline tracking-wider">APLIKASI PUJASERA TERPISAH</CardTitle>
+                        <CardDescription>Kelola banyak tenant dalam 1 grup dengan sistem pembayaran terpisah by tenant.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex justify-center items-center p-4">
+                        <Building className="h-12 w-12 text-primary" />
                     </CardContent>
                 </Card>
             </Link>
