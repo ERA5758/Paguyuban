@@ -214,43 +214,6 @@ function PromotionSection({ promotions }: { promotions: RedemptionOption[] }) {
     );
 }
 
-function OrderStatusCard({ order, onComplete }: { order: TableOrder, onComplete: () => void }) {
-    return (
-        <Card className="mb-8 bg-amber-500/10 border-amber-500/30">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-700">
-                    <Loader className="animate-spin"/> Pesanan Anda Sedang Diproses
-                </CardTitle>
-                <CardDescription>Pesanan Anda telah diterima oleh dapur. Mohon tunggu notifikasi selanjutnya.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-2">
-                    <h4 className="font-semibold">Rincian Pesanan:</h4>
-                     {order.items.map(item => (
-                        <div key={item.productId} className="flex justify-between items-start text-sm">
-                            <div>
-                                <p>{item.quantity}x {item.productName}</p>
-                                {item.notes && <p className="text-xs italic text-gray-600 pl-2"> &#x21B3; {item.notes}</p>}
-                            </div>
-                            <p className="font-mono">Rp {(item.quantity * item.price).toLocaleString('id-ID')}</p>
-                        </div>
-                    ))}
-                    <Separator className="my-2"/>
-                    <div className="flex justify-between font-bold">
-                        <span>Total</span>
-                        <span>Rp {order.totalAmount.toLocaleString('id-ID')}</span>
-                    </div>
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button variant="ghost" className="text-muted-foreground" onClick={onComplete}>
-                    Pesanan Sudah Diterima? Hapus Status
-                </Button>
-            </CardFooter>
-        </Card>
-    )
-}
-
 function NoteDialog({ open, onOpenChange, note, onSave }: { open: boolean, onOpenChange: (open: boolean) => void, note: string, onSave: (newNote: string) => void }) {
     const [currentNote, setCurrentNote] = React.useState(note);
 
@@ -301,14 +264,12 @@ export default function CatalogPage() {
     const [noteProduct, setNoteProduct] = React.useState<CartItem | null>(null);
     const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
     const [loggedInCustomer, setLoggedInCustomer] = React.useState<Customer | null>(null);
-    const [activeOrder, setActiveOrder] = React.useState<TableOrder | null>(null);
     const [paymentMethod, setPaymentMethod] = React.useState<'kasir' | 'qris'>('kasir');
     const [deliveryOption, setDeliveryOption] = React.useState<'pickup' | 'delivery'>('pickup');
     const [deliveryAddress, setDeliveryAddress] = React.useState('');
     const [isQrisDialogOpen, setIsQrisDialogOpen] = React.useState(false);
 
     const sessionKey = `chika-customer-session-${slug}`;
-    const activeOrderKey = `chika-active-order-${slug}`;
 
     React.useEffect(() => {
         const fetchData = async () => {
@@ -333,11 +294,7 @@ export default function CatalogPage() {
         if (savedSession) {
             try { setLoggedInCustomer(JSON.parse(savedSession)); } catch { localStorage.removeItem(sessionKey); }
         }
-        const savedOrder = localStorage.getItem(activeOrderKey);
-        if (savedOrder) {
-            try { setActiveOrder(JSON.parse(savedOrder)); } catch { localStorage.removeItem(activeOrderKey); }
-        }
-    }, [slug, sessionKey, activeOrderKey]);
+    }, [slug, sessionKey]);
 
     const { pujasera, tenants, promotions, error } = data || {};
     
@@ -464,12 +421,6 @@ export default function CatalogPage() {
         }
     };
 
-    const handleCompleteOrder = () => {
-        setActiveOrder(null);
-        localStorage.removeItem(activeOrderKey);
-        toast({ title: "Status Dihapus", description: "Terima kasih atas kunjungan Anda!" });
-    }
-
     if (isLoading) {
       return <div className="flex min-h-screen items-center justify-center bg-background"><Loader className="h-8 w-8 animate-spin text-primary" /></div>;
     }
@@ -523,7 +474,7 @@ export default function CatalogPage() {
             </header>
             
             <main className="container mx-auto max-w-4xl p-4 md:p-8">
-                 {activeOrder ? <OrderStatusCard order={activeOrder} onComplete={handleCompleteOrder} /> : (promotions && <PromotionSection promotions={promotions} />)}
+                 {promotions && <PromotionSection promotions={promotions} />}
                  
                  {tenants && tenants.length > 0 ? (
                     <Tabs defaultValue={tenants[0].id} className="w-full">
@@ -578,7 +529,7 @@ export default function CatalogPage() {
                                                                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setNoteProduct(itemInCart)}><MessageSquare className="h-4 w-4" /></Button>
                                                             </div>
                                                         ) : (
-                                                            <Button variant="outline" className="w-full" onClick={() => addToCart(product, tenant)} disabled={!!activeOrder}>Tambah</Button>
+                                                            <Button variant="outline" className="w-full" onClick={() => addToCart(product, tenant)}>Tambah</Button>
                                                         )
                                                     ) : (
                                                         <Button variant="outline" className="w-full" disabled>Stok Habis</Button>
