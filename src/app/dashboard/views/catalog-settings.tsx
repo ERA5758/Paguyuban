@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -20,11 +21,11 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Image from 'next/image';
 
 const features = [
-  "Tampilan menu modern & profesional untuk semua tenant di pujasera Anda.",
+  "Tampilan menu modern & profesional untuk semua tenant di paguyuban Anda.",
   "Integrasi QR Code untuk akses cepat dari meja pelanggan.",
   "Asisten AI untuk menjawab pertanyaan dan memberikan rekomendasi menu.",
   "Update menu dan harga secara real-time dari masing-masing tenant.",
-  "Meningkatkan pengalaman pelanggan dan citra modern pujasera Anda.",
+  "Meningkatkan pengalaman pelanggan dan citra modern paguyuban Anda.",
 ];
 
 export default function CatalogSettings() {
@@ -33,47 +34,9 @@ export default function CatalogSettings() {
   const { feeSettings } = dashboardData;
   const { toast } = useToast();
   
-  const [qrisImageFile, setQrisImageFile] = React.useState<File | null>(null);
-  const [qrisImagePreview, setQrisImagePreview] = React.useState<string | null>(activeStore?.qrisImageUrl || null);
-  const [isUploading, setIsUploading] = React.useState(false);
-  const qrisFileInputRef = React.useRef<HTMLInputElement>(null);
-
   const handleOpenCatalog = () => {
     if (activeStore?.pujaseraGroupSlug) {
       window.open(`/katalog/${activeStore.pujaseraGroupSlug}`, '_blank');
-    }
-  };
-  
-  const handleQrisFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setQrisImageFile(file);
-      setQrisImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleSaveQris = async () => {
-    if (!qrisImageFile || !activeStore) {
-      toast({ variant: 'destructive', title: 'Tidak ada gambar dipilih' });
-      return;
-    }
-    setIsUploading(true);
-    try {
-      const storageRef = ref(storage, `stores/${activeStore.id}/qris/${qrisImageFile.name}`);
-      const uploadResult = await uploadBytes(storageRef, qrisImageFile);
-      const downloadUrl = await getDownloadURL(uploadResult.ref);
-
-      await updateDoc(doc(db, 'stores', activeStore.id), {
-        qrisImageUrl: downloadUrl,
-      });
-
-      updateActiveStore({ qrisImageUrl: downloadUrl });
-      toast({ title: 'Gambar QRIS berhasil disimpan!' });
-    } catch (error) {
-      console.error("Error saving QRIS:", error);
-      toast({ variant: 'destructive', title: 'Gagal menyimpan QRIS' });
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -203,49 +166,6 @@ export default function CatalogSettings() {
                 </div>
             </CardContent>
         </Card>
-        
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline tracking-wider">Pengaturan Pembayaran Katalog</CardTitle>
-                <CardDescription>
-                    Unggah gambar QRIS Anda agar pelanggan dapat membayar langsung melalui katalog.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <div 
-                        className="flex justify-center items-center w-full h-48 rounded-md border-2 border-dashed border-input cursor-pointer bg-secondary/50 hover:bg-secondary/70"
-                        onClick={() => qrisFileInputRef.current?.click()}
-                    >
-                        {qrisImagePreview ? (
-                            <Image src={qrisImagePreview} alt="Pratinjau QRIS" width={192} height={192} className="h-full w-full object-contain rounded-md" unoptimized/>
-                        ) : (
-                            <div className="text-center text-muted-foreground">
-                                <ImageIcon className="mx-auto h-10 w-10" />
-                                <p>Klik untuk memilih gambar QRIS</p>
-                            </div>
-                        )}
-                    </div>
-                    <Input 
-                        ref={qrisFileInputRef}
-                        type="file" 
-                        className="hidden" 
-                        onChange={handleQrisFileChange}
-                        accept="image/png, image/jpeg, image/webp"
-                    />
-                </div>
-                 <div className="space-y-4 flex flex-col justify-center">
-                    <p className="text-sm text-muted-foreground">
-                        Pilih gambar kode QRIS (misalnya dari GoPay, OVO, DANA, dll.). Gambar ini akan ditampilkan kepada pelanggan saat mereka memilih opsi pembayaran dengan QRIS di katalog.
-                    </p>
-                    <Button onClick={handleSaveQris} disabled={isUploading || !qrisImageFile}>
-                        {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Upload className="mr-2 h-4 w-4" />}
-                        Simpan Gambar QRIS
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
-
 
         <Card>
              <CardHeader className="text-center">

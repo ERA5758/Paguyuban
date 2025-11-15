@@ -24,14 +24,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, storage } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword,
 } from 'firebase/auth';
-import { Loader, KeyRound, UserCircle, Building, Eye, EyeOff, Save, Play, MessageSquareQuote, Zap, Info, Newspaper, Sparkles, Percent, HandCoins } from 'lucide-react';
+import { Loader, KeyRound, UserCircle, Building, Eye, EyeOff, Save, Play, MessageSquareQuote, Zap, Info, Newspaper, Sparkles, Percent, HandCoins, Upload, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { useDashboard } from '@/contexts/dashboard-context';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -44,6 +45,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { AIConfirmationDialog } from '@/components/dashboard/ai-confirmation-dialog';
+import Image from 'next/image';
 
 interface TextToSpeechInput {
   text: string;
@@ -120,6 +122,11 @@ export default function Settings() {
   const [notificationSettings, setNotificationSettings] = React.useState<NotificationSettings | null>(null);
   const [businessDescription, setBusinessDescription] = React.useState('');
   
+  const [qrisImageFile, setQrisImageFile] = React.useState<File | null>(null);
+  const [qrisImagePreview, setQrisImagePreview] = React.useState<string | null>(activeStore?.qrisImageUrl || null);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const qrisFileInputRef = React.useRef<HTMLInputElement>(null);
+  
   const [showCurrentPassword, setShowCurrentPassword] = React.useState(false);
   const [showNewPassword, setShowNewPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
@@ -136,6 +143,7 @@ export default function Settings() {
         setBusinessDescription(activeStore.businessDescription || '');
         setNotificationSettings(activeStore.notificationSettings || { dailySummaryEnabled: true });
         setFinancialSettings(activeStore.financialSettings || { taxPercentage: 0, serviceFeePercentage: 0 });
+        setQrisImagePreview(activeStore.qrisImageUrl || null);
     }
   }, [activeStore]);
 
@@ -197,12 +205,21 @@ export default function Settings() {
   const handleGeneralSettingSave = async () => {
     if (!activeStore || !generalSettings || !notificationSettings || !financialSettings) return;
     setIsGeneralSettingLoading(true);
+    let qrisUrl = activeStore.qrisImageUrl;
+
     try {
+        if (qrisImageFile) {
+            const storageRef = ref(storage, `stores/${activeStore.id}/qris/${qrisImageFile.name}`);
+            const uploadResult = await uploadBytes(storageRef, qrisImageFile);
+            qrisUrl = await getDownloadURL(uploadResult.ref);
+        }
+
         const storeRef = doc(db, 'stores', activeStore.id);
         const updates = {
             businessDescription: businessDescription,
             notificationSettings: notificationSettings,
             financialSettings: financialSettings,
+            qrisImageUrl: qrisUrl,
         };
         await setDoc(storeRef, updates, { merge: true });
   
@@ -212,8 +229,8 @@ export default function Settings() {
       });
   
       toast({ title: 'Pengaturan Umum Disimpan!' });
-      // Update the context immediately
       updateActiveStore(updates);
+      setQrisImageFile(null); // Clear file after upload
 
     } catch (error) {
       console.error("Error saving general settings:", error);
@@ -223,6 +240,14 @@ export default function Settings() {
     }
   };
   
+  const handleQrisFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setQrisImageFile(file);
+      setQrisImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handlePlaySample = async () => {
     if (!generalSettings?.voiceGender) return;
     setIsSamplePlaying(true);
@@ -321,7 +346,7 @@ export default function Settings() {
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline tracking-wider">Pengaturan Umum</CardTitle>
-                    <CardDescription>Pengaturan ini akan memengaruhi cara kerja fitur AI di {currentUser?.role === 'pujasera_admin' ? 'Paguyuban' : 'toko'} Anda.</CardDescription>
+                    <CardDescription>Pengaturan ini akan memengaruhi cara kerja fitur di {currentUser?.role === 'pujasera_admin' ? 'Paguyuban' : 'toko'} Anda.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
@@ -370,6 +395,32 @@ export default function Settings() {
                           />
                         </div>
                     </div>
+                    {currentUser?.role === 'admin' && (
+                      <div className="space-y-2">
+                          <Label>Gambar QRIS</Label>
+                           <div 
+                              className="flex justify-center items-center w-full h-48 rounded-md border-2 border-dashed border-input cursor-pointer bg-secondary/50 hover:bg-secondary/70"
+                              onClick={() => qrisFileInputRef.current?.click()}
+                          >
+                              {qrisImagePreview ? (
+                                  <Image src={qrisImagePreview} alt="Pratinjau QRIS" width={192} height={192} className="h-full w-full object-contain rounded-md" unoptimized/>
+                              ) : (
+                                  <div className="text-center text-muted-foreground">
+                                      <ImageIcon className="mx-auto h-10 w-10" />
+                                      <p>Klik untuk memilih gambar QRIS</p>
+                                  </div>
+                              )}
+                          </div>
+                          <Input 
+                              ref={qrisFileInputRef}
+                              type="file" 
+                              className="hidden" 
+                              onChange={handleQrisFileChange}
+                              accept="image/png, image/jpeg, image/webp"
+                          />
+                      </div>
+                    )}
+
 
                     {currentUser?.role === 'admin' && (
                         <>
