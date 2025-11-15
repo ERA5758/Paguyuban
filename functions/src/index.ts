@@ -8,6 +8,7 @@ import { initializeApp, getApps } from "firebase-admin/app";
 import { subDays } from "date-fns";
 import { format } from "date-fns/format";
 import { id as idLocale } from "date-fns/locale";
+import type { PointEarningSettings } from "./types";
 
 // Initialize Firebase Admin SDK if not already initialized
 if (getApps().length === 0) {
@@ -137,7 +138,7 @@ export const processIndividualTenantOrder = onDocumentCreated("PujaseraIndividua
 
 async function handleIndividualPujaseraOrder(payload: any) {
     const { pujaseraId, customer, cart, paymentMethod } = payload;
-    if (!pujaseraId || !customer || !cart || cart.length === 0) {
+    if (!pujaseraId || !customer || !cart || !Array.isArray(cart) || cart.length === 0) {
         throw new Error("Data pesanan individual tidak lengkap.");
     }
 
@@ -159,6 +160,7 @@ async function handleIndividualPujaseraOrder(payload: any) {
 
     const batch = db.batch();
     const parentTransactionId = db.collection('dummy').doc().id; 
+    let totalPointsEarned = 0;
 
     for (const tenantId in itemsByTenant) {
         const tenantInfo = itemsByTenant[tenantId];
@@ -214,6 +216,18 @@ async function handleIndividualPujaseraOrder(payload: any) {
             transactionCounter: increment(1),
             pradanaTokenBalance: increment(-transactionFee)
         });
+        
+        // Accumulate points based on each tenant's settings
+        const pointSettings = (tenantData.pointEarningSettings || { rpPerPoint: 10000 }) as PointEarningSettings;
+        if (pointSettings.rpPerPoint > 0) {
+            totalPointsEarned += Math.floor(totalAmount / pointSettings.rpPerPoint);
+        }
+    }
+    
+    // Update customer's central loyalty points
+    if (customer.id !== 'N/A' && totalPointsEarned > 0) {
+        const customerRef = db.doc(`stores/${pujaseraId}/customers/${customer.id}`);
+        batch.update(customerRef, { loyaltyPoints: increment(totalPointsEarned) });
     }
 
     await batch.commit();

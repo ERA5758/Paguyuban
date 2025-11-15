@@ -1,3 +1,6 @@
+
+'use server';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/server/firebase-admin';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -19,11 +22,11 @@ export async function POST(req: NextRequest) {
         const { phone, name, storeId, birthDate } = await req.json();
 
         if (!phone || !storeId) {
-            return NextResponse.json({ error: 'Nomor HP dan ID Toko diperlukan.' }, { status: 400 });
+            return NextResponse.json({ error: 'Nomor HP dan ID Paguyuban diperlukan.' }, { status: 400 });
         }
         
         const formattedPhone = formatPhoneNumber(phone);
-        // Customer collection is now under the specific store
+        // Customer collection is now under the specific pujasera/paguyuban store
         const customerCollectionRef = db.collection('stores').doc(storeId).collection('customers');
         const q = customerCollectionRef.where('phone', '==', formattedPhone).limit(1);
 
