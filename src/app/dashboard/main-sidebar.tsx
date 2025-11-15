@@ -110,7 +110,6 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
         roles: ['pujasera_admin'],
         items: [
             { view: 'tenants', label: 'Manajemen Tenant', icon: <Briefcase />, roles: ['pujasera_admin'], tourId: 'sidebar-tenants' },
-            { view: 'employees', label: 'Karyawan Paguyuban', icon: <Users />, roles: ['pujasera_admin'], tourId: 'sidebar-employees' },
             { view: 'customers', label: 'Database Pelanggan', icon: <Contact2 />, roles: ['pujasera_admin'], tourId: 'sidebar-customers' },
         ]
     },
@@ -126,24 +125,24 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
     },
     // --- TENANT & SHARED GROUPS ---
     {
-        group: 'Operasional',
+        group: 'Operasional Tenant',
         icon: <Store />,
-        roles: ['admin', 'cashier', 'kitchen', 'pujasera_cashier'],
+        roles: ['admin', 'cashier', 'kitchen'],
         items: [
             { view: 'overview', label: 'Overview', icon: <LayoutGrid />, roles: ['admin', 'cashier'], tourId: 'sidebar-overview' },
-            { view: 'pos', label: 'Kasir POS', icon: <Armchair />, roles: ['admin', 'cashier', 'pujasera_cashier'], tourId: 'sidebar-pos' },
-            { view: 'kitchen', label: 'Monitor Dapur', icon: <Store />, roles: ['admin', 'kitchen'], tourId: 'sidebar-kitchen' },
-            { view: 'transactions', label: 'Riwayat Transaksi', icon: <History />, roles: ['admin', 'cashier'], tourId: 'sidebar-transactions' },
+            { view: 'pos', label: 'Kasir POS', icon: <Armchair />, roles: ['admin', 'cashier'], tourId: 'sidebar-pos' },
+            { view: 'kitchen', label: 'Dapur', icon: <Store />, roles: ['admin', 'kitchen'], tourId: 'sidebar-kitchen' },
+            { view: 'transactions', label: 'Transaksi', icon: <History />, roles: ['admin', 'cashier'], tourId: 'sidebar-transactions' },
         ]
     },
     {
-        group: 'Manajemen Toko',
+        group: 'Manajemen Tenant',
         icon: <Wallet />,
         roles: ['admin', 'cashier'],
         items: [
-            { view: 'products', label: 'Produk (Menu)', icon: <BookOpenCheck />, roles: ['admin', 'cashier'], tourId: 'sidebar-products' },
-            { view: 'employees', label: 'Karyawan Toko', icon: <Users />, roles: ['admin'], tourId: 'sidebar-employees' },
-            { view: 'customers', label: 'Pelanggan Toko', icon: <Contact2 />, roles: ['admin', 'cashier'], tourId: 'sidebar-customers' },
+            { view: 'products', label: 'Produk', icon: <BookOpenCheck />, roles: ['admin', 'cashier'], tourId: 'sidebar-products' },
+            { view: 'employees', label: 'Karyawan', icon: <Users />, roles: ['admin'], tourId: 'sidebar-employees' },
+            { view: 'customers', label: 'Pelanggan', icon: <Contact2 />, roles: ['admin', 'cashier'], tourId: 'sidebar-customers' },
         ]
     },
     {
