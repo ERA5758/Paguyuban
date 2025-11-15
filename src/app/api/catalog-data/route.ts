@@ -49,10 +49,20 @@ export async function GET(req: NextRequest) {
         const productsSnapshot = await db.collection('stores').doc(tenantDoc.id).collection('products').orderBy('name').get();
         const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+        let tenantWhatsapp = '';
+        if (tenantData.adminUids && tenantData.adminUids.length > 0) {
+            const adminId = tenantData.adminUids[0]; // Get the primary admin
+            const userDoc = await db.collection('users').doc(adminId).get();
+            if (userDoc.exists) {
+                tenantWhatsapp = userDoc.data()?.whatsapp || '';
+            }
+        }
+
         return {
             id: tenantDoc.id,
             name: tenantData.name,
             products: products,
+            whatsapp: tenantWhatsapp,
         };
     });
 

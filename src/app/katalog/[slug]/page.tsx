@@ -2,11 +2,11 @@
 'use client';
 
 import * as React from 'react';
-import type { Store, Product, RedemptionOption, Customer, OrderPayload, CartItem, TableOrder, ProductInfo } from '@/lib/types';
+import type { Store, Product, RedemptionOption, Customer, OrderPayload, CartItem, TableOrder, ProductInfo, TenantWithProducts } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
-import { Store as StoreIcon, PackageX, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare, QrCode } from 'lucide-react';
+import { Store as StoreIcon, PackageX, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare, QrCode, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger } from '@/components/ui/sheet';
@@ -33,14 +33,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { formatWhatsappNumber } from '@/lib/utils';
+import Link from 'next/link';
 
 // --- Pujasera Specific Types ---
-type TenantWithProducts = {
-    id: string;
-    name: string;
-    products: Product[];
-}
-
 type PujaseraCatalogData = {
     pujasera: Store;
     tenants: TenantWithProducts[];
@@ -370,7 +366,7 @@ export default function CatalogPage() {
         toast({ title: "Anda telah keluar." });
     };
 
-    const addToCart = (product: Product, tenantId: string) => {
+    const addToCart = (product: Product, tenant: TenantWithProducts) => {
         setCart(currentCart => {
             const existingItem = currentCart.find(item => item.productId === product.id);
             if (existingItem) {
@@ -378,7 +374,7 @@ export default function CatalogPage() {
                     item.productId === product.id ? { ...item, quantity: item.quantity + 1 } : item
                 );
             }
-            return [...currentCart, { productId: product.id, productName: product.name, price: product.price, quantity: 1, notes: '', storeId: tenantId }];
+            return [...currentCart, { productId: product.id, productName: product.name, price: product.price, quantity: 1, notes: '', storeId: tenant.id, storeName: tenant.name }];
         });
     };
 
@@ -448,12 +444,6 @@ export default function CatalogPage() {
                 throw new Error(errorData.error || 'Gagal membuat pesanan.');
             }
             const result = await response.json();
-            
-            if (result.success && result.table?.currentOrder) {
-                const newOrder = result.table.currentOrder as TableOrder;
-                setActiveOrder(newOrder);
-                localStorage.setItem(activeOrderKey, JSON.stringify(newOrder));
-            }
             
             toast({ title: 'Pesanan Berhasil Dibuat!', description: 'Pesanan Anda sedang diproses. Silakan lanjutkan pembayaran.' });
             setCart([]);
@@ -538,6 +528,8 @@ export default function CatalogPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {tenant.products.map(product => {
                                             const itemInCart = cart.find(item => item.productId === product.id);
+                                            const whatsappUrl = tenant.whatsapp ? `https://wa.me/${formatWhatsappNumber(tenant.whatsapp)}?text=${encodeURIComponent(`Halo, saya ingin bertanya tentang produk ${product.name} dari katalog ${pujasera.name}.`)}` : '';
+
                                             return (
                                             <Card key={product.id} className="overflow-hidden group flex flex-col">
                                                 <div className="relative aspect-square">
@@ -557,7 +549,16 @@ export default function CatalogPage() {
                                                     {itemInCart?.notes && (
                                                         <Button variant="outline" size="sm" className="w-full text-xs text-muted-foreground truncate" onClick={() => setNoteProduct(itemInCart)}>Catatan: {itemInCart.notes}</Button>
                                                     )}
-                                                    <Button variant="secondary" size="sm" className="w-full" onClick={() => handleAskAI(product)}><Sparkles className="mr-2 h-4 w-4" /> Tanya Chika AI</Button>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {whatsappUrl && (
+                                                            <Button asChild variant="outline" size="sm">
+                                                                <Link href={whatsappUrl} target='_blank'>
+                                                                    <Phone className="mr-2 h-4 w-4"/> Chat Penjual
+                                                                </Link>
+                                                            </Button>
+                                                        )}
+                                                        <Button variant="secondary" size="sm" className="w-full" onClick={() => handleAskAI(product)}><Sparkles className="mr-2 h-4 w-4" /> Tanya AI</Button>
+                                                    </div>
                                                     {product.stock > 0 ? (
                                                         itemInCart ? (
                                                             <div className="flex items-center gap-2 w-full">
@@ -612,7 +613,8 @@ export default function CatalogPage() {
                             <div key={item.productId} className="flex items-start gap-4">
                                 <div className="flex-1">
                                     <p className="font-semibold">{item.productName}</p>
-                                    {item.notes && <p className="text-xs text-muted-foreground italic pl-2 border-l-2 ml-2 my-1">&quot;{item.notes}&quot;</p>}
+                                    <p className="text-xs text-muted-foreground">dari {item.storeName}</p>
+                                    {item.notes && <p className="text-xs italic text-muted-foreground pl-2 border-l-2 ml-2 my-1">&quot;{item.notes}&quot;</p>}
                                     <p className="text-sm text-muted-foreground">Rp {item.price.toLocaleString('id-ID')}</p>
                                 </div>
                                  <div className="flex items-center gap-2">
@@ -644,7 +646,7 @@ export default function CatalogPage() {
                             <RadioGroup value={paymentMethod} onValueChange={(value: 'kasir' | 'qris') => setPaymentMethod(value)} className="grid grid-cols-2 gap-4">
                                 <div>
                                     <RadioGroupItem value="kasir" id="pay-kasir" className="peer sr-only" />
-                                    <Label htmlFor="pay-kasir" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                                    <Label htmlFor="pay-kasir" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
                                         <Receipt className="mb-3 h-6 w-6"/> Bayar di Kasir
                                     </Label>
                                 </div>

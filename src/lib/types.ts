@@ -154,6 +154,10 @@ export type OrderPayload = {
     storeId: string; // This will be the pujaseraId
     customer: Customer;
     cart: CartItem[];
+    subtotal: number;
+    taxAmount: number;
+    serviceFeeAmount: number;
+    totalAmount: number;
     paymentMethod: 'kasir' | 'qris';
 };
 
@@ -282,4 +286,11 @@ export type CatalogAssistantInput = {
 };
 export type CatalogAssistantOutput = {
   answer: string;
+};
+
+export type TenantWithProducts = {
+    id: string;
+    name: string;
+    products: Product[];
+    whatsapp?: string; // Add optional whatsapp number
 };
