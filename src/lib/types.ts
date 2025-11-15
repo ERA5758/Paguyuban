@@ -107,6 +107,7 @@ export type Customer = {
   memberTier: 'Bronze' | 'Silver' | 'Gold';
   avatarUrl: string;
   pujaseraGroup?: string; // To which pujasera group this customer belongs
+  address?: string; // Customer's delivery address
 };
 
 export type TransactionStatus = 'Diproses' | 'Siap Diambil' | 'Selesai' | 'Selesai Dibayar' | 'Belum Dibayar' | 'Dibatalkan';

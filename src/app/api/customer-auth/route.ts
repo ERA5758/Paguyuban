@@ -1,4 +1,3 @@
-
 'use server';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,7 +18,7 @@ function formatPhoneNumber(phone: string): string {
 export async function POST(req: NextRequest) {
     const { db } = getFirebaseAdmin();
     try {
-        const { phone, name, storeId, birthDate } = await req.json();
+        const { phone, name, storeId, birthDate, address } = await req.json();
 
         if (!phone || !storeId) {
             return NextResponse.json({ error: 'Nomor HP dan ID Paguyuban diperlukan.' }, { status: 400 });
@@ -45,6 +44,7 @@ export async function POST(req: NextRequest) {
                 const newCustomerData = {
                     name,
                     phone: formattedPhone,
+                    address: address || '',
                     joinDate: new Date().toISOString(),
                     birthDate: birthDate || new Date(0).toISOString().split('T')[0], // Use provided or default date
                     loyaltyPoints: 0,

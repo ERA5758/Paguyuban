@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -11,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Customer } from '@/lib/types';
 import { formatWhatsappNumber } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Textarea } from '../ui/textarea';
 
 type CustomerAuthDialogProps = {
     open: boolean;
@@ -37,6 +37,7 @@ export function CustomerAuthDialog({ open, onOpenChange, storeId, onLoginSuccess
     const [birthDay, setBirthDay] = React.useState('');
     const [birthMonth, setBirthMonth] = React.useState('');
     const [birthYear, setBirthYear] = React.useState('');
+    const [address, setAddress] = React.useState('');
     const [isLoading, setIsLoading] = React.useState(false);
     const { toast } = useToast();
     const descriptionId = React.useId();
@@ -49,6 +50,7 @@ export function CustomerAuthDialog({ open, onOpenChange, storeId, onLoginSuccess
             setBirthDay('');
             setBirthMonth('');
             setBirthYear('');
+            setAddress('');
             setIsLoading(false);
         }
     }, [open]);
@@ -99,7 +101,7 @@ export function CustomerAuthDialog({ open, onOpenChange, storeId, onLoginSuccess
             const response = await fetch('/api/customer-auth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: formatWhatsappNumber(phone), name, storeId, birthDate }),
+                body: JSON.stringify({ phone: formatWhatsappNumber(phone), name, storeId, birthDate, address }),
             });
             const data = await response.json();
             
@@ -123,7 +125,7 @@ export function CustomerAuthDialog({ open, onOpenChange, storeId, onLoginSuccess
                     <form onSubmit={handleRegisterSubmit} className="space-y-4">
                         <DialogTitle>Selamat Datang!</DialogTitle>
                         <DialogDescription id={descriptionId}>
-                            Nomor Anda belum terdaftar. Masukkan nama Anda untuk menjadi member.
+                            Nomor Anda belum terdaftar. Lengkapi data di bawah ini untuk menjadi member.
                         </DialogDescription>
                         <div className="space-y-2">
                             <Label htmlFor="name">Nama Anda</Label>
@@ -157,6 +159,10 @@ export function CustomerAuthDialog({ open, onOpenChange, storeId, onLoginSuccess
                                     </SelectContent>
                                 </Select>
                              </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="address">Alamat Pengiriman (Opsional)</Label>
+                          <Textarea id="address" placeholder="Masukkan alamat lengkap Anda..." value={address} onChange={(e) => setAddress(e.target.value)} />
                         </div>
                         <DialogFooter>
                             <Button variant="ghost" onClick={() => setStep('PHONE_INPUT')}>Kembali</Button>
