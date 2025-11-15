@@ -96,7 +96,7 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
              { view: 'platform-control', label: 'Kontrol Platform', icon: <ShieldCheck />, roles: ['superadmin'] },
         ]
     },
-    // --- PUJASERA GROUPS ---
+    // --- PAGUYUBAN GROUPS ---
     {
         group: 'Operasional Paguyuban',
         icon: <FoodCourtIcon />,
@@ -143,7 +143,7 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
         roles: ['admin', 'cashier', 'kitchen'],
         items: [
             { view: 'overview', label: 'Overview', icon: <LayoutGrid />, roles: ['admin', 'cashier'], tourId: 'sidebar-overview' },
-            { view: 'pos', label: 'Kasir POS', icon: <Armchair />, roles: [], tourId: 'sidebar-pos', check: () => activeStore?.posMode === 'sendiri' },
+            { view: 'pos', label: 'Kasir POS', icon: <Armchair />, roles: ['admin', 'cashier'], tourId: 'sidebar-pos' },
             { view: 'kitchen', label: 'Dapur', icon: <ChefHat />, roles: ['admin', 'kitchen'], tourId: 'sidebar-kitchen' },
             { view: 'transactions', label: 'Transaksi', icon: <History />, roles: ['admin', 'cashier'], tourId: 'sidebar-transactions' },
         ]
