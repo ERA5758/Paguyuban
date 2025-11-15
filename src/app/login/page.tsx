@@ -28,7 +28,7 @@ import { Form, FormField, FormItem, FormControl, FormMessage } from '@/component
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Logo } from '@/components/dashboard/logo';
-import { Loader, Sparkles, LogIn, Megaphone, Eye, EyeOff, MessageSquare, Phone, Building, ChefHat, Wrench, Store } from 'lucide-react';
+import { Loader, Sparkles, LogIn, Megaphone, Eye, EyeOff, MessageSquare, Phone, Building, Store, Wrench } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
@@ -233,8 +233,8 @@ export default function LoginPage() {
              <Link href="https://pujasera.era5758.co.id" target="_blank" className="block">
                 <Card className="text-center hover:bg-muted">
                     <CardHeader>
-                        <CardTitle className="text-lg font-headline tracking-wider">APLIKASI PUJASERA TERPUSAT</CardTitle>
-                        <CardDescription>Kelola banyak tenant dalam 1 group dengan sistem pembayaran terpusat di kasir pujasera.</CardDescription>
+                        <CardTitle className="text-lg font-headline tracking-wider">APLIKASI PAGUYUBAN TERPUSAT</CardTitle>
+                        <CardDescription>Kelola banyak tenant dalam 1 grup dengan sistem pembayaran terpusat di kasir paguyuban.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center items-center p-4">
                         <Building className="h-12 w-12 text-primary" />
@@ -248,14 +248,14 @@ export default function LoginPage() {
                         <CardDescription>Untuk kafe, resto, atau cloud kitchen.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center items-center p-4">
-                        <ChefHat className="h-12 w-12 text-primary" />
+                        <Store className="h-12 w-12 text-primary" />
                     </CardContent>
                 </Card>
             </Link>
              <Link href="https://tenant.era5758.co.id" target="_blank" className="block">
                 <Card className="text-center hover:bg-muted">
                     <CardHeader>
-                        <CardTitle className="text-lg font-headline tracking-wider">APLIKASI PUJASERA TERPISAH</CardTitle>
+                        <CardTitle className="text-lg font-headline tracking-wider">APLIKASI PAGUYUBAN TERPISAH</CardTitle>
                         <CardDescription>Kelola banyak tenant dalam 1 grup dengan sistem pembayaran terpisah by tenant.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center items-center p-4">
@@ -301,7 +301,7 @@ export default function LoginPage() {
                         <div>
                             <RadioGroupItem value="F&B" id="type-fnb" className="peer sr-only" />
                             <Label htmlFor="type-fnb" className="flex items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                                <ChefHat className="h-5 w-5"/> F&amp;B
+                                <Store className="h-5 w-5"/> F&amp;B
                             </Label>
                         </div>
                         <div>

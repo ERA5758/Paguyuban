@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,7 +6,7 @@ import type { Store, Product, RedemptionOption, Customer, OrderPayload, CartItem
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
-import { ChefHat, PackageX, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare, QrCode } from 'lucide-react';
+import { Store as StoreIcon, PackageX, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger } from '@/components/ui/sheet';
@@ -416,7 +417,7 @@ export default function CatalogPage() {
                 toast({
                     variant: 'destructive',
                     title: 'Pembayaran QRIS Tidak Tersedia',
-                    description: 'Pujasera ini belum mengunggah kode QRIS.'
+                    description: 'Paguyuban ini belum mengunggah kode QRIS.'
                 });
             }
         } else {
@@ -477,7 +478,7 @@ export default function CatalogPage() {
         return (
             <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
                 <Alert variant="destructive" className="w-auto max-w-md">
-                    <ChefHat className="h-4 w-4" />
+                    <StoreIcon className="h-4 w-4" />
                     <AlertTitle>Katalog Tidak Tersedia</AlertTitle>
                     <AlertDescription>{error || "Katalog yang Anda cari tidak dapat ditemukan atau sedang tidak aktif."}</AlertDescription>
                 </Alert>
@@ -582,7 +583,7 @@ export default function CatalogPage() {
                         ))}
                     </Tabs>
                  ) : (
-                    <p className="text-center text-muted-foreground py-10">Belum ada tenant aktif di pujasera ini.</p>
+                    <p className="text-center text-muted-foreground py-10">Belum ada tenant aktif di paguyuban ini.</p>
                  )}
             </main>
         </div>
@@ -661,7 +662,7 @@ export default function CatalogPage() {
                         </div>
                     ) : (
                          <Alert>
-                            <ChefHat className="h-4 w-4" /><AlertTitle>Langkah Berikutnya</AlertTitle>
+                            <StoreIcon className="h-4 w-4" /><AlertTitle>Langkah Berikutnya</AlertTitle>
                             <AlertDescription>
                                 <Button variant="link" className="p-0 h-auto" onClick={() => {
                                     document.querySelector('[data-radix-collection-item] > button[aria-label="Close"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));

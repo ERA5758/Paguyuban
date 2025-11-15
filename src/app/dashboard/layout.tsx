@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FloatingStoreIndicator } from "@/components/dashboard/floating-store-indicator";
@@ -7,7 +8,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { DashboardProvider } from "@/contexts/dashboard-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { ChefHat } from "lucide-react";
+import { Store } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -26,7 +27,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     return (
        <div className="flex min-h-screen w-full items-center justify-center bg-background">
             <div className="flex flex-col items-center gap-4">
-                <ChefHat className="h-16 w-16 animate-pulse-slow text-primary/50" />
+                <Store className="h-16 w-16 animate-pulse-slow text-primary/50" />
                 <p className="font-headline text-xl tracking-wider text-muted-foreground">
                     Loading Session...
                 </p>

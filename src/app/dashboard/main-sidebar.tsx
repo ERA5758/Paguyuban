@@ -132,7 +132,7 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
         items: [
             { view: 'overview', label: 'Overview', icon: <LayoutGrid />, roles: ['admin', 'cashier'], tourId: 'sidebar-overview' },
             { view: 'pos', label: 'Kasir POS', icon: <Armchair />, roles: ['admin', 'cashier', 'pujasera_cashier'], tourId: 'sidebar-pos' },
-            { view: 'kitchen', label: 'Monitor Dapur', icon: <ChefHat />, roles: ['admin', 'kitchen'], tourId: 'sidebar-kitchen' },
+            { view: 'kitchen', label: 'Monitor Dapur', icon: <Store />, roles: ['admin', 'kitchen'], tourId: 'sidebar-kitchen' },
             { view: 'transactions', label: 'Riwayat Transaksi', icon: <History />, roles: ['admin', 'cashier'], tourId: 'sidebar-transactions' },
         ]
     },

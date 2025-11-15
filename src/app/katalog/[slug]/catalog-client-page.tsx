@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,7 +6,7 @@ import type { Store, Product, ProductCategory, RedemptionOption, Customer, Order
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
-import { ChefHat, PackageX, MessageCircle, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, XCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare } from 'lucide-react';
+import { Store as StoreIcon, PackageX, MessageCircle, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, XCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger, SheetClose } from '@/components/ui/sheet';
@@ -528,7 +529,7 @@ export default function CatalogPage() {
         return (
             <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
                 <Alert variant="destructive" className="w-auto max-w-md">
-                    <ChefHat className="h-4 w-4" />
+                    <StoreIcon className="h-4 w-4" />
                     <AlertTitle>Katalog Tidak Tersedia</AlertTitle>
                     <AlertDescription>{error || "Katalog yang Anda cari tidak dapat ditemukan."}</AlertDescription>
                 </Alert>
@@ -753,8 +754,7 @@ export default function CatalogPage() {
                          </Button>
                     ) : (
                          <Alert>
-                            <ChefHat className="h-4 w-4" />
-                            <AlertTitle>Langkah Berikutnya</AlertTitle>
+                            <StoreIcon className="h-4 w-4" /><AlertTitle>Langkah Berikutnya</AlertTitle>
                             <AlertDescription>
                                 Tunjukkan pesanan ini di kasir, atau <Button variant="link" className="p-0 h-auto" onClick={() => {
                                     // Close the sheet before opening the dialog

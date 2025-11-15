@@ -27,7 +27,7 @@ import { Suspense } from 'react';
 import type { User, Transaction, Customer } from '@/lib/types';
 import { useAuth } from '@/contexts/auth-context';
 import { useDashboard } from '@/contexts/dashboard-context';
-import { ChefHat, Printer } from 'lucide-react';
+import { Store, Printer } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Receipt } from '@/components/dashboard/receipt';
@@ -228,7 +228,7 @@ function DashboardSkeleton() {
     return (
         <div className="flex min-h-screen w-full items-center justify-center bg-background">
             <div className="flex flex-col items-center gap-4">
-                <ChefHat className="h-16 w-16 animate-pulse-slow text-primary/50" />
+                <Store className="h-16 w-16 animate-pulse-slow text-primary/50" />
                 <p className="font-headline text-xl tracking-wider text-muted-foreground">
                     Loading Dashboard...
                 </p>
