@@ -1,7 +1,8 @@
 
+'use server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/server/firebase-admin';
-import type { OrderPayload, Table, TableOrder, Transaction } from '@/lib/types';
+import type { OrderPayload } from '@/lib/types';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(req: NextRequest) {
@@ -14,10 +15,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Data pesanan tidak lengkap.' }, { status: 400 });
         }
 
-        // Queue the entire order for processing by the Cloud Function
-        const pujaseraQueueRef = db.collection('Pujaseraqueue').doc();
-        await pujaseraQueueRef.set({
-            type: 'pujasera-order',
+        // Use the new queue for individual tenant processing
+        const individualQueueRef = db.collection('PujaseraIndividualQueue').doc();
+        await individualQueueRef.set({
+            type: 'pujasera-order-individual',
             payload: {
                 ...payload,
                 isFromCatalog: true
@@ -25,12 +26,7 @@ export async function POST(req: NextRequest) {
             createdAt: FieldValue.serverTimestamp(),
         });
         
-        let responseMessage = '';
-        if (paymentMethod === 'kasir') {
-            responseMessage = 'Pesanan berhasil dikirim ke masing-masing tenant. Silakan bayar langsung di kasir tenant.';
-        } else if (paymentMethod === 'qris') {
-            responseMessage = 'Pesanan berhasil dikirim ke masing-masing tenant. Silakan selesaikan pembayaran dengan QRIS yang tersedia.';
-        }
+        let responseMessage = 'Pesanan Anda telah berhasil dikirim ke masing-masing tenant.';
 
         return NextResponse.json({ 
             success: true, 
@@ -38,7 +34,7 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error) {
-        console.error('Error creating catalog order:', error);
+        console.error('Error creating individual catalog order:', error);
         return NextResponse.json({ error: (error as Error).message }, { status: 500 });
     }
 }

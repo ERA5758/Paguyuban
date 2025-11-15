@@ -79,8 +79,7 @@ function formatWhatsappNumber(nomor: string | number): string {
 }
 
 /**
- * Main function to handle all queued tasks.
- * It now orchestrates order processing, distribution, and WhatsApp notifications.
+ * [LEGACY] Main function to handle all queued tasks for centralized payment.
  */
 export const processPujaseraQueue = onDocumentCreated("Pujaseraqueue/{jobId}", async (event) => {
     const snapshot = event.data;
@@ -108,6 +107,118 @@ export const processPujaseraQueue = onDocumentCreated("Pujaseraqueue/{jobId}", a
         await snapshot.ref.update({ status: 'failed', error: error.message, processedAt: FieldValue.serverTimestamp() });
     }
 });
+
+/**
+ * [NEW] Processes orders where payment is handled by each tenant individually.
+ */
+export const processIndividualTenantOrder = onDocumentCreated("PujaseraIndividualQueue/{jobId}", async (event) => {
+    const snapshot = event.data;
+    if (!snapshot) {
+        logger.info("[Individual] No data associated with the event, exiting.");
+        return;
+    }
+    const jobData = snapshot.data();
+    const { type, payload } = jobData;
+
+    try {
+        await snapshot.ref.update({ status: 'processing', startedAt: FieldValue.serverTimestamp() });
+        if (type === 'pujasera-order-individual') {
+            await handleIndividualPujaseraOrder(payload);
+            await snapshot.ref.update({ status: 'completed', processedAt: FieldValue.serverTimestamp() });
+        } else {
+             logger.warn(`[Individual] Unknown job type: ${type}`);
+             await snapshot.ref.update({ status: 'unknown_type', error: `Unknown job type: ${type}`, processedAt: FieldValue.serverTimestamp() });
+        }
+    } catch (error: any) {
+        logger.error(`[Individual] Failed to process job ${snapshot.id} of type ${type}:`, error);
+        await snapshot.ref.update({ status: 'failed', error: error.message, processedAt: FieldValue.serverTimestamp() });
+    }
+});
+
+async function handleIndividualPujaseraOrder(payload: any) {
+    const { pujaseraId, customer, cart, paymentMethod } = payload;
+    if (!pujaseraId || !customer || !cart || cart.length === 0) {
+        throw new Error("Data pesanan individual tidak lengkap.");
+    }
+
+    const itemsByTenant: { [key: string]: { storeName: string, items: any[] } } = {};
+    for (const item of cart) {
+        if (!item.storeId || !item.storeName) continue;
+        if (!itemsByTenant[item.storeId]) {
+            itemsByTenant[item.storeId] = { storeName: item.storeName, items: [] };
+        }
+        itemsByTenant[item.storeId].items.push(item);
+    }
+
+    const feeSettingsDoc = await db.doc('appSettings/transactionFees').get();
+    const feeSettings = feeSettingsDoc.data() || {};
+    const feePercentage = feeSettings.feePercentage ?? 0.005;
+    const minFeeRp = feeSettings.minFeeRp ?? 500;
+    const maxFeeRp = feeSettings.maxFeeRp ?? 2500;
+    const tokenValueRp = feeSettings.tokenValueRp ?? 1000;
+
+    const batch = db.batch();
+    const parentTransactionId = db.collection('dummy').doc().id; 
+
+    for (const tenantId in itemsByTenant) {
+        const tenantInfo = itemsByTenant[tenantId];
+        const tenantItems = tenantInfo.items;
+        const tenantStoreRef = db.doc(`stores/${tenantId}`);
+        
+        const tenantStoreDoc = await tenantStoreRef.get();
+        if (!tenantStoreDoc.exists) {
+            logger.warn(`[Individual] Tenant store with ID ${tenantId} not found. Skipping.`);
+            continue;
+        }
+        
+        const tenantData = tenantStoreDoc.data()!;
+        const tenantCounter = tenantData.transactionCounter || 0;
+        const newReceiptNumber = tenantCounter + 1;
+
+        const subtotal = tenantItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        
+        const taxRate = tenantData.financialSettings?.taxPercentage ?? 0;
+        const serviceRate = tenantData.financialSettings?.serviceFeePercentage ?? 0;
+        const taxAmount = subtotal * (taxRate / 100);
+        const serviceFeeAmount = subtotal * (serviceRate / 100);
+        const totalAmount = subtotal + taxAmount + serviceFeeAmount;
+        
+        const newTransactionRef = db.collection('stores').doc(tenantId).collection('transactions').doc();
+        
+        batch.set(newTransactionRef, {
+            receiptNumber: newReceiptNumber,
+            storeId: tenantId,
+            customerId: customer.id || 'N/A',
+            customerName: customer.name || 'Guest',
+            staffId: 'catalog-system',
+            createdAt: new Date().toISOString(),
+            items: tenantItems,
+            subtotal,
+            taxAmount,
+            serviceFeeAmount,
+            discountAmount: 0,
+            totalAmount: totalAmount,
+            paymentMethod,
+            status: 'Diproses',
+            notes: `Pesanan dari Katalog Publik #${String(parentTransactionId).substring(0,6)}`,
+            parentTransactionId,
+            pujaseraId: pujaseraId,
+        });
+
+        const feeFromPercentage = totalAmount * feePercentage;
+        const feeCappedAtMin = Math.max(feeFromPercentage, minFeeRp);
+        const feeCappedAtMax = Math.min(feeCappedAtMin, maxFeeRp);
+        const transactionFee = feeCappedAtMax / tokenValueRp;
+        
+        batch.update(tenantStoreRef, { 
+            transactionCounter: increment(1),
+            pradanaTokenBalance: increment(-transactionFee)
+        });
+    }
+
+    await batch.commit();
+    logger.info(`[Individual] Successfully processed catalog order and distributed to ${Object.keys(itemsByTenant).length} tenants.`);
+}
 
 
 async function handlePujaseraOrder(payload: any) {
