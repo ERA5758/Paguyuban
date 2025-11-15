@@ -87,7 +87,7 @@ function DashboardContent() {
   
   const roleDefaultViews: Record<string, string> = {
     'pujasera_admin': 'pujasera-overview',
-    'pujasera_cashier': 'pujasera-pos',
+    'pujasera_cashier': 'pos',
     'admin': 'overview',
     'cashier': 'pos',
     'kitchen': 'kitchen',
@@ -109,21 +109,6 @@ function DashboardContent() {
 
   const renderView = () => {
     const commonProps = { onPrintRequest: setTransactionToPrint, onDetailRequest: setTransactionForDetail };
-    const cashierViews = ['overview', 'pos', 'transactions', 'products', 'customers'];
-    const kitchenViews = ['kitchen'];
-
-    if (currentUser?.role === 'cashier' && !cashierViews.includes(view)) {
-        return <Tables />; // Default view for cashier
-    }
-    if (currentUser?.role === 'kitchen' && !kitchenViews.includes(view)) {
-        return <Kitchen onFollowUpRequest={setTransactionForFollowUp} onPrintStickerRequest={setTransactionForSticker}/>; // Default for kitchen
-    }
-    if (currentUser?.role === 'admin' && view === 'kitchen') {
-        return <Kitchen onFollowUpRequest={setTransactionForFollowUp} onPrintStickerRequest={setTransactionForSticker} />;
-    }
-    if ((currentUser?.role === 'pujasera_admin' || currentUser?.role === 'pujasera_cashier') && view === 'kitchen') {
-      return <Kitchen onFollowUpRequest={setTransactionForFollowUp} onPrintStickerRequest={setTransactionForSticker} />;
-    }
 
     switch (view) {
       case 'overview': return currentUser?.role === 'admin' ? <AdminOverview /> : <Overview />;
@@ -132,7 +117,7 @@ function DashboardContent() {
       case 'customers': return <Customers />;
       case 'customer-analytics': return <CustomerAnalytics />;
       case 'employees': return <Employees />;
-      case 'transactions': return <Transactions onDetailRequest={setTransactionForDetail} onPrintRequest={setTransactionToPrint} />;
+      case 'transactions': return <Transactions onDetailRequest={setTransactionForDetail} onPrintRequest={setTransactionToPrint} onFollowUpRequest={setTransactionForFollowUp} />;
       case 'kitchen': return <Kitchen onFollowUpRequest={setTransactionForFollowUp} onPrintStickerRequest={setTransactionForSticker} />;
       case 'settings': return <Settings />;
       case 'challenges': return <Challenges />;
@@ -141,35 +126,42 @@ function DashboardContent() {
       case 'ai-business-plan': return <AIBusinessPlan />;
       case 'catalog': return <CatalogSettings />;
       case 'tables': return <Tables />;
-      // --- Pujasera Views ---
+      // --- Paguyuban Views ---
       case 'tenants': return <TenantsManagement />;
       case 'pujasera-overview': return <PujaseraOverview />;
-      case 'pujasera-pos': return searchParams.get('tableId') ? <POS {...commonProps} /> : <Tables />;
       // --- Superadmin Views ---
       // case 'platform-control': return <PlatformControl />;
-      default: return <Tables />;
+      default: return currentUser?.role === 'pujasera_admin' ? <PujaseraOverview /> : <Tables />;
     }
   };
 
   const getTitle = () => {
     const tableId = searchParams.get('tableId');
     const tableName = searchParams.get('tableName');
-    if ((view === 'pos' || view === 'pujasera-pos') && tableId) {
+    if (view === 'pos' && tableId) {
         return `Pesanan: ${tableName || ''}`;
     }
-    const baseTitle = {
+    const baseTitle: Record<string, string> = {
       'overview': 'Dashboard Overview', 'pos': 'Kasir POS', 'kitchen': 'Monitor Dapur', 'products': 'Inventaris Produk', 'customers': 'Manajemen Pelanggan',
-      'customer-analytics': 'Analisis Pelanggan', 'employees': 'Manajemen Karyawan', 'transactions': 'Riwayat Transaksi', 'settings': 'Pengaturan',
+      'customer-analytics': 'Analisis Pelanggan', 'employees': 'Manajemen Karyawan', 'transactions': 'Riwayat Transaksi', 'settings': 'Pengaturan Akun',
       'challenges': 'Tantangan Tenant', 'promotions': 'Manajemen Promo Paguyuban', 'receipt-settings': 'Pengaturan Struk', 'ai-business-plan': 'AI Business Plan',
       'catalog': 'Pengaturan Katalog Publik', 'tables': 'Manajemen Meja',
-      'pujasera-overview': 'Overview Paguyuban', 'pujasera-pos': 'Kasir Paguyuban', 'tenants': 'Manajemen Tenant',
+      // Paguyuban
+      'pujasera-overview': 'Overview Paguyuban', 'tenants': 'Manajemen Tenant',
+      // Superadmin
       'platform-control': 'Kontrol Platform',
-    }[view] || 'Kasir POS';
+    };
     
-    if(currentUser?.role === 'admin' && view === 'overview') return `Admin Overview`;
-    if(currentUser?.role === 'pujasera_admin' && view === 'kitchen') return `Dapur Terpusat`;
+    let title = baseTitle[view] || 'Kasir POS';
     
-    return baseTitle;
+    if (currentUser?.role === 'admin' && view === 'overview') title = `Admin Overview`;
+    if (currentUser?.role === 'pujasera_admin' && view === 'employees') title = `Karyawan Paguyuban`;
+    if (currentUser?.role === 'admin' && view === 'employees') title = `Karyawan Toko`;
+    if (currentUser?.role === 'pujasera_admin' && view === 'customers') title = 'Database Pelanggan';
+    if (currentUser?.role === 'admin' && view === 'customers') title = `Pelanggan Toko`;
+    if (currentUser?.role === 'pujasera_admin' && view === 'transactions') title = 'Semua Transaksi Paguyuban';
+    
+    return title;
   };
 
   return (

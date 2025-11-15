@@ -46,7 +46,6 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/auth-context';
 import { ThemeSwitcher } from '@/components/dashboard/theme-switcher';
 import { FoodCourtIcon } from '@/components/icons/food-court-icon';
-import { ChikaIcon } from '@/components/icons/chika-icon';
 
 type MainSidebarProps = {
   pradanaTokenBalance: number;
@@ -58,10 +57,9 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
-  // Define default views for each role
   const roleDefaultViews: Record<string, string> = {
     'pujasera_admin': 'pujasera-overview',
-    'pujasera_cashier': 'pujasera-pos',
+    'pujasera_cashier': 'pos', // Re-route to standard POS/Tables view
     'admin': 'overview',
     'cashier': 'pos',
     'kitchen': 'kitchen',
@@ -74,7 +72,7 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
 
   const navigate = (view: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
-    if (view !== 'pujasera-pos' && view !== 'pos') {
+    if (view !== 'pos') {
       newParams.delete('tableId');
       newParams.delete('tableName');
     }
@@ -100,26 +98,24 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
     {
         group: 'Operasional Paguyuban',
         icon: <FoodCourtIcon />,
-        roles: ['pujasera_admin', 'pujasera_cashier'],
+        roles: ['pujasera_admin'],
         items: [
             { view: 'pujasera-overview', label: 'Overview Paguyuban', icon: <LayoutGrid />, roles: ['pujasera_admin'], tourId: 'sidebar-overview' },
-            { view: 'pujasera-pos', label: 'Kasir Paguyuban', icon: <Armchair />, roles: ['pujasera_cashier', 'pujasera_admin'], tourId: 'sidebar-pos' },
-            { view: 'transactions', label: 'Transaksi', icon: <History />, roles: ['pujasera_admin', 'pujasera_cashier'], tourId: 'sidebar-transactions' },
-            { view: 'kitchen', label: 'Dapur Terpusat', icon: <ChefHat />, roles: ['pujasera_admin', 'pujasera_cashier'], tourId: 'sidebar-kitchen' },
+            { view: 'transactions', label: 'Semua Transaksi', icon: <History />, roles: ['pujasera_admin'], tourId: 'sidebar-transactions' },
         ]
     },
     {
         group: 'Manajemen Paguyuban',
         icon: <Building />,
-        roles: ['pujasera_admin', 'pujasera_cashier'],
+        roles: ['pujasera_admin'],
         items: [
             { view: 'tenants', label: 'Manajemen Tenant', icon: <Briefcase />, roles: ['pujasera_admin'], tourId: 'sidebar-tenants' },
-            { view: 'employees', label: 'Manajemen Karyawan', icon: <Users />, roles: ['pujasera_admin'], tourId: 'sidebar-employees' },
-            { view: 'customers', label: 'Pelanggan', icon: <Contact2 />, roles: ['pujasera_admin', 'pujasera_cashier'], tourId: 'sidebar-customers' },
+            { view: 'employees', label: 'Karyawan Paguyuban', icon: <Users />, roles: ['pujasera_admin'], tourId: 'sidebar-employees' },
+            { view: 'customers', label: 'Database Pelanggan', icon: <Contact2 />, roles: ['pujasera_admin'], tourId: 'sidebar-customers' },
         ]
     },
     {
-        group: 'Pertumbuhan & Marketing',
+        group: 'Marketing Paguyuban',
         icon: <TrendingUp />,
         roles: ['pujasera_admin'],
         items: [
@@ -128,33 +124,26 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
             { view: 'catalog', label: 'Katalog Publik', icon: <Newspaper />, roles: ['pujasera_admin'], tourId: 'sidebar-catalog' },
         ]
     },
+    // --- TENANT & SHARED GROUPS ---
     {
-        group: 'Pengaturan Paguyuban',
-        icon: <Settings />,
-        roles: ['pujasera_admin'],
-        items: [
-             { view: 'receipt-settings', label: 'Pengaturan Struk', icon: <Receipt />, roles: ['pujasera_admin'], tourId: 'sidebar-receipt-settings' },
-        ]
-    },
-    // --- TENANT GROUPS ---
-    {
-        group: 'Operasional Tenant',
+        group: 'Operasional',
         icon: <Store />,
-        roles: ['admin', 'cashier', 'kitchen'],
+        roles: ['admin', 'cashier', 'kitchen', 'pujasera_cashier'],
         items: [
             { view: 'overview', label: 'Overview', icon: <LayoutGrid />, roles: ['admin', 'cashier'], tourId: 'sidebar-overview' },
-            { view: 'pos', label: 'Kasir POS', icon: <Armchair />, roles: ['admin', 'cashier'], tourId: 'sidebar-pos' },
-            { view: 'kitchen', label: 'Dapur', icon: <ChefHat />, roles: ['admin', 'kitchen'], tourId: 'sidebar-kitchen' },
-            { view: 'transactions', label: 'Transaksi', icon: <History />, roles: ['admin', 'cashier'], tourId: 'sidebar-transactions' },
+            { view: 'pos', label: 'Kasir POS', icon: <Armchair />, roles: ['admin', 'cashier', 'pujasera_cashier'], tourId: 'sidebar-pos' },
+            { view: 'kitchen', label: 'Monitor Dapur', icon: <ChefHat />, roles: ['admin', 'kitchen'], tourId: 'sidebar-kitchen' },
+            { view: 'transactions', label: 'Riwayat Transaksi', icon: <History />, roles: ['admin', 'cashier'], tourId: 'sidebar-transactions' },
         ]
     },
     {
-        group: 'Manajemen Tenant',
+        group: 'Manajemen Toko',
         icon: <Wallet />,
         roles: ['admin', 'cashier'],
         items: [
             { view: 'products', label: 'Produk (Menu)', icon: <BookOpenCheck />, roles: ['admin', 'cashier'], tourId: 'sidebar-products' },
-            { view: 'employees', label: 'Karyawan', icon: <Users />, roles: ['admin'], tourId: 'sidebar-employees' },
+            { view: 'employees', label: 'Karyawan Toko', icon: <Users />, roles: ['admin'], tourId: 'sidebar-employees' },
+            { view: 'customers', label: 'Pelanggan Toko', icon: <Contact2 />, roles: ['admin', 'cashier'], tourId: 'sidebar-customers' },
         ]
     },
     {
@@ -162,15 +151,17 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
         icon: <TrendingUp />,
         roles: ['admin'],
         items: [
+            { view: 'customer-analytics', label: 'Analisis Pelanggan', icon: <BarChart4 />, roles: ['admin'], tourId: 'sidebar-customer-analytics' },
             { view: 'ai-business-plan', label: 'AI Business Plan', icon: <Map />, roles: ['admin'], tourId: 'sidebar-ai-business-plan' },
         ]
     },
      {
-        group: 'Pengaturan Toko',
+        group: 'Pengaturan',
         icon: <Settings />,
-        roles: ['admin'],
+        roles: ['admin', 'pujasera_admin'],
         items: [
-            { view: 'receipt-settings', label: 'Pengaturan Struk', icon: <Receipt />, roles: ['admin'], tourId: 'sidebar-receipt-settings' },
+            { view: 'receipt-settings', label: 'Pengaturan Struk', icon: <Receipt />, roles: ['admin', 'pujasera_admin'], tourId: 'sidebar-receipt-settings' },
+            { view: 'settings', label: 'Pengaturan Akun', icon: <Settings />, roles: ['admin', 'pujasera_admin'], tourId: 'sidebar-settings' },
         ]
     },
   ];
@@ -214,11 +205,7 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
           {menuGroups.map((group) => {
             if (!currentUser || !group.roles.some(role => currentUser.role === role)) return null;
             
-            const visibleItems = group.items.filter(item => {
-                const hasRole = item.roles.length > 0 ? item.roles.includes(currentUser.role) : true;
-                const checkPasses = item.check ? item.check() : true;
-                return hasRole && checkPasses;
-            });
+            const visibleItems = group.items.filter(item => item.roles.includes(currentUser.role));
 
             if (visibleItems.length === 0) return null;
 
@@ -260,12 +247,6 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
                </div>
             )}
             <ThemeSwitcher />
-          <SidebarMenuItem data-tour="sidebar-settings">
-            <SidebarMenuButton tooltip="Pengaturan" onClick={() => navigate('settings')} isActive={currentView === 'settings'}>
-              <Settings />
-              <span>Pengaturan</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Keluar" onClick={handleLogout}>
               <LogOut />
