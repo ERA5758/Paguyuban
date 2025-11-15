@@ -98,18 +98,18 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
     },
     // --- PUJASERA GROUPS ---
     {
-        group: 'Operasional Pujasera',
+        group: 'Operasional Paguyuban',
         icon: <FoodCourtIcon />,
         roles: ['pujasera_admin', 'pujasera_cashier'],
         items: [
-            { view: 'pujasera-overview', label: 'Overview Pujasera', icon: <LayoutGrid />, roles: ['pujasera_admin'], tourId: 'sidebar-overview' },
-            { view: 'pujasera-pos', label: 'Kasir Pujasera', icon: <Armchair />, roles: ['pujasera_cashier', 'pujasera_admin'], tourId: 'sidebar-pos' },
+            { view: 'pujasera-overview', label: 'Overview Paguyuban', icon: <LayoutGrid />, roles: ['pujasera_admin'], tourId: 'sidebar-overview' },
+            { view: 'pujasera-pos', label: 'Kasir Paguyuban', icon: <Armchair />, roles: ['pujasera_cashier', 'pujasera_admin'], tourId: 'sidebar-pos' },
             { view: 'transactions', label: 'Transaksi', icon: <History />, roles: ['pujasera_admin', 'pujasera_cashier'], tourId: 'sidebar-transactions' },
             { view: 'kitchen', label: 'Dapur Terpusat', icon: <ChefHat />, roles: ['pujasera_admin', 'pujasera_cashier'], tourId: 'sidebar-kitchen' },
         ]
     },
     {
-        group: 'Manajemen Pujasera',
+        group: 'Manajemen Paguyuban',
         icon: <Building />,
         roles: ['pujasera_admin', 'pujasera_cashier'],
         items: [
@@ -123,13 +123,13 @@ export function MainSidebar({ pradanaTokenBalance }: MainSidebarProps) {
         icon: <TrendingUp />,
         roles: ['pujasera_admin'],
         items: [
-             { view: 'promotions', label: 'Promo Pujasera', icon: <Gift />, roles: ['pujasera_admin'], tourId: 'sidebar-promotions' },
+             { view: 'promotions', label: 'Promo Paguyuban', icon: <Gift />, roles: ['pujasera_admin'], tourId: 'sidebar-promotions' },
             { view: 'challenges', label: 'Tantangan Tenant', icon: <Trophy />, roles: ['pujasera_admin'], tourId: 'sidebar-challenges' },
             { view: 'catalog', label: 'Katalog Publik', icon: <Newspaper />, roles: ['pujasera_admin'], tourId: 'sidebar-catalog' },
         ]
     },
     {
-        group: 'Pengaturan Pujasera',
+        group: 'Pengaturan Paguyuban',
         icon: <Settings />,
         roles: ['pujasera_admin'],
         items: [

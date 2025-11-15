@@ -36,7 +36,7 @@ function InviteTenantDialog({ open, onOpenChange, pujaseraSlug }: { open: boolea
     };
 
     const shareToWhatsApp = () => {
-        const message = `Halo, kami mengundang Anda untuk bergabung dengan pujasera kami. Silakan daftar melalui link berikut: ${registrationLink}`;
+        const message = `Halo, kami mengundang Anda untuk bergabung dengan paguyuban kami. Silakan daftar melalui link berikut: ${registrationLink}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };
@@ -47,7 +47,7 @@ function InviteTenantDialog({ open, onOpenChange, pujaseraSlug }: { open: boolea
                 <DialogHeader>
                     <DialogTitle>Undang Tenant Baru</DialogTitle>
                     <DialogDescription>
-                        Bagikan link di bawah ini kepada calon tenant untuk mendaftar ke pujasera Anda.
+                        Bagikan link di bawah ini kepada calon tenant untuk mendaftar ke paguyuban Anda.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
@@ -195,7 +195,7 @@ export default function TenantsManagement() {
                 <div>
                     <CardTitle className="font-headline tracking-wider">Manajemen Tenant</CardTitle>
                     <CardDescription>
-                        Lihat, kelola, dan atur mode kasir untuk semua tenant di pujasera Anda.
+                        Lihat, kelola, dan atur mode kasir untuk semua tenant di paguyuban Anda.
                     </CardDescription>
                 </div>
                 <div className="flex gap-2">

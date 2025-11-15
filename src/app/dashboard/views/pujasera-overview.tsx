@@ -241,7 +241,7 @@ export default function PujaseraOverview() {
         <Card className="border-primary/50 bg-primary/10">
           <CardHeader>
             <CardTitle className="font-headline tracking-wider text-primary">Penawaran Spesial Pengguna Baru!</CardTitle>
-            <CardDescription>Aktifkan Katalog Publik digital untuk pujasera Anda dengan harga percobaan yang sangat terjangkau.</CardDescription>
+            <CardDescription>Aktifkan Katalog Publik digital untuk paguyuban Anda dengan harga percobaan yang sangat terjangkau.</CardDescription>
           </CardHeader>
           <CardContent>
              <p className="mb-4 text-sm">Tingkatkan pengalaman pelanggan dengan menu digital modern yang dilengkapi asisten AI untuk semua tenant. Klaim sekarang hanya dengan <span className="font-bold">{feeSettings.catalogTrialFee} Pradana Token</span> untuk {feeSettings.catalogTrialDurationMonths} bulan.</p>
@@ -265,7 +265,7 @@ export default function PujaseraOverview() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pendapatan Pujasera</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Pendapatan Paguyuban</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -298,7 +298,7 @@ export default function PujaseraOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
             <CardHeader>
-            <CardTitle className="font-headline tracking-wider">Pertumbuhan Pendapatan Pujasera</CardTitle>
+            <CardTitle className="font-headline tracking-wider">Pertumbuhan Pendapatan Paguyuban</CardTitle>
             <CardDescription>Total pendapatan gabungan selama 6 bulan terakhir.</CardDescription>
             </CardHeader>
             <CardContent>

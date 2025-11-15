@@ -100,7 +100,7 @@ function TenantRegistrationForm() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Link Tidak Valid</AlertTitle>
                     <AlertDescription>
-                        Link undangan untuk pendaftaran tenant tidak valid atau tidak lengkap. Silakan minta link baru dari pengelola pujasera Anda.
+                        Link undangan untuk pendaftaran tenant tidak valid atau tidak lengkap. Silakan minta link baru dari pengelola paguyuban Anda.
                     </AlertDescription>
                 </Alert>
                 <Button asChild>
@@ -123,7 +123,7 @@ function TenantRegistrationForm() {
               <CardHeader className="text-center">
                 <CardTitle className="font-headline text-2xl tracking-wider">DAFTAR TENANT BARU</CardTitle>
                 <CardDescription>
-                  Anda diundang untuk bergabung dengan grup pujasera <span className="font-bold text-primary">{pujaseraGroupSlug.split('-').slice(0, -1).join(' ')}</span>.
+                  Anda diundang untuk bergabung dengan grup paguyuban <span className="font-bold text-primary">{pujaseraGroupSlug.split('-').slice(0, -1).join(' ')}</span>.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4">

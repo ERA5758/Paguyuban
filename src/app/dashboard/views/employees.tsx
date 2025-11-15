@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -134,7 +135,7 @@ export default function Employees() {
                 Manajemen Karyawan
               </CardTitle>
               <CardDescription>
-                Kelola akun dan peran karyawan untuk {currentUser?.role === 'pujasera_admin' ? 'kasir pujasera' : 'toko Anda'}.
+                Kelola akun dan peran karyawan untuk {currentUser?.role === 'pujasera_admin' ? 'kasir paguyuban' : 'toko Anda'}.
               </CardDescription>
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

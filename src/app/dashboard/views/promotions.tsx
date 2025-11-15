@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -266,12 +267,12 @@ export default function Promotions() {
         {isAdmin && feeSettings && (
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline tracking-wider">Rekomendasi Promo Pujasera</CardTitle>
-              <CardDescription>Dapatkan ide promo loyalitas baru untuk seluruh pujasera berdasarkan data penjualan terkini.</CardDescription>
+              <CardTitle className="font-headline tracking-wider">Rekomendasi Promo Paguyuban</CardTitle>
+              <CardDescription>Dapatkan ide promo loyalitas baru untuk seluruh paguyuban berdasarkan data penjualan terkini.</CardDescription>
             </CardHeader>
             <CardContent>
                <AIConfirmationDialog
-                 featureName="Rekomendasi Promo Pujasera"
+                 featureName="Rekomendasi Promo Paguyuban"
                  featureDescription="Chika AI akan menganalisis data penjualan Anda untuk memberikan saran promo baru."
                  feeSettings={feeSettings}
                  onConfirm={handleGenerateRecommendations}
@@ -316,7 +317,7 @@ export default function Promotions() {
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="font-headline tracking-wider">
-                  Promo Penukaran Poin Pujasera
+                  Promo Penukaran Poin Paguyuban
                 </CardTitle>
                 <CardDescription>
                   {isAdmin

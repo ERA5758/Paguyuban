@@ -160,9 +160,9 @@ function DashboardContent() {
     const baseTitle = {
       'overview': 'Dashboard Overview', 'pos': 'Kasir POS', 'kitchen': 'Monitor Dapur', 'products': 'Inventaris Produk', 'customers': 'Manajemen Pelanggan',
       'customer-analytics': 'Analisis Pelanggan', 'employees': 'Manajemen Karyawan', 'transactions': 'Riwayat Transaksi', 'settings': 'Pengaturan',
-      'challenges': 'Tantangan Tenant', 'promotions': 'Manajemen Promo Pujasera', 'receipt-settings': 'Pengaturan Struk', 'ai-business-plan': 'AI Business Plan',
+      'challenges': 'Tantangan Tenant', 'promotions': 'Manajemen Promo Paguyuban', 'receipt-settings': 'Pengaturan Struk', 'ai-business-plan': 'AI Business Plan',
       'catalog': 'Pengaturan Katalog Publik', 'tables': 'Manajemen Meja',
-      'pujasera-overview': 'Overview Pujasera', 'pujasera-pos': 'Kasir Pujasera', 'tenants': 'Manajemen Tenant',
+      'pujasera-overview': 'Overview Paguyuban', 'pujasera-pos': 'Kasir Paguyuban', 'tenants': 'Manajemen Tenant',
       'platform-control': 'Kontrol Platform',
     }[view] || 'Kasir POS';
     
