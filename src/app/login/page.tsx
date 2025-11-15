@@ -230,11 +230,11 @@ export default function LoginPage() {
         </Card>
         
         <div className="space-y-4">
-            <Link href="https://tenant.era5758.co.id" target="_blank" className="block">
+            <Link href="https://pujasera.era5758.co.id" target="_blank" className="block">
                 <Card className="text-center hover:bg-muted">
                     <CardHeader>
-                        <CardTitle className="text-lg font-headline tracking-wider">Aplikasi Pujasera Terpisah</CardTitle>
-                        <CardDescription>Kelola banyak tenant dalam 1 grup dengan sistem pembayaran terpisah by tenant.</CardDescription>
+                        <CardTitle className="text-lg font-headline tracking-wider">APLIKASI PUJASERA TERPUSAT</CardTitle>
+                        <CardDescription>Kelola banyak tenant dalam 1 group dengan sistem pembayaran terpusat di kasir pujasera.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center items-center p-4">
                         <Building className="h-12 w-12 text-primary" />
@@ -244,7 +244,7 @@ export default function LoginPage() {
             <Link href="https://fnb.era5758.co.id" target="_blank" className="block">
                 <Card className="text-center hover:bg-muted">
                     <CardHeader>
-                        <CardTitle className="text-lg font-headline tracking-wider">APLIKASI POS F&amp;B</CardTitle>
+                        <CardTitle className="text-lg font-headline tracking-wider">APLIKASI POS F&B</CardTitle>
                         <CardDescription>Untuk kafe, resto, atau cloud kitchen.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center items-center p-4">
@@ -384,3 +384,5 @@ export default function LoginPage() {
     </>
   );
 }
+
+    
