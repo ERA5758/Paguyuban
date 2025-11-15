@@ -3,7 +3,7 @@
 import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
-import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
+import { getFirestore, FieldValue, Timestamp, increment } from "firebase-admin/firestore";
 import { initializeApp, getApps } from "firebase-admin/app";
 import { subDays } from "date-fns";
 import { format } from "date-fns/format";
@@ -111,22 +111,12 @@ export const processPujaseraQueue = onDocumentCreated("Pujaseraqueue/{jobId}", a
 
 
 async function handlePujaseraOrder(payload: any) {
-    const { pujaseraId, customer, cart, subtotal, taxAmount, serviceFeeAmount, totalAmount, paymentMethod, staffId, pointsEarned, pointsToRedeem, tableId, isFromCatalog } = payload;
+    const { pujaseraId, customer, cart, paymentMethod, isFromCatalog } = payload;
     
     if (!pujaseraId || !customer || !cart || cart.length === 0) {
         throw new Error("Data pesanan tidak lengkap.");
     }
-    
-    const batch = db.batch();
-    
-    const pujaseraStoreRef = db.doc(`stores/${pujaseraId}`);
-    const pujaseraStoreDoc = await pujaseraStoreRef.get();
-    if (!pujaseraStoreDoc.exists) throw new Error("Pujasera tidak ditemukan.");
-    
-    const pujaseraData = pujaseraStoreDoc.data()!;
-    const pujaseraCounter = pujaseraData.transactionCounter || 0;
-    const newReceiptNumber = pujaseraCounter + 1;
-    
+
     // Group items by tenant for distribution
     const itemsByTenant: { [key: string]: { storeName: string, items: any[] } } = {};
     for (const item of cart) {
@@ -136,94 +126,74 @@ async function handlePujaseraOrder(payload: any) {
         }
         itemsByTenant[item.storeId].items.push(item);
     }
-    
-    // Main Transaction
-    const newTxRef = db.collection('stores').doc(pujaseraId).collection('transactions').doc();
-    const newTransactionData: { [key: string]: any } = {
-        receiptNumber: newReceiptNumber,
-        storeId: pujaseraId,
-        customerId: customer.id || 'N/A',
-        customerName: customer.name || 'Guest',
-        staffId: staffId || 'catalog-system',
-        createdAt: new Date().toISOString(),
-        items: cart,
-        subtotal, taxAmount, serviceFeeAmount, discountAmount: 0,
-        totalAmount,
-        paymentMethod,
-        status: 'Diproses',
-        pointsEarned: pointsEarned || 0,
-        pointsRedeemed: pointsToRedeem || 0,
-        tableId: tableId || undefined,
-        pujaseraGroupSlug: pujaseraData.pujaseraGroupSlug,
-        notes: isFromCatalog ? 'Pesanan dari Katalog Publik' : '',
-        itemsStatus: {} // Initialize status tracking
-    };
-    
-    newTransactionData.itemsStatus = Object.keys(itemsByTenant).reduce((acc, tenantId) => ({ ...acc, [tenantId]: 'Diproses' }), {});
-    batch.set(newTxRef, newTransactionData);
 
-    // Create sub-transactions for each tenant
-    for (const tenantId in itemsByTenant) {
-        const tenantInfo = itemsByTenant[tenantId];
-        const tenantItems = tenantInfo.items;
-        const tenantSubtotal = tenantItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-        // Use a predictable ID for the sub-transaction
-        const subTransactionId = `${newTxRef.id}_${tenantId}`;
-        const newTenantTransactionRef = db.collection('stores').doc(tenantId).collection('transactions').doc(subTransactionId);
-        
-        batch.set(newTenantTransactionRef, {
-            receiptNumber: newReceiptNumber,
-            storeId: tenantId,
-            customerId: customer.id,
-            customerName: customer.name,
-            createdAt: newTransactionData.createdAt,
-            items: tenantItems,
-            subtotal: tenantSubtotal,
-            totalAmount: tenantSubtotal,
-            status: 'Diproses',
-            notes: `Bagian dari pesanan pujasera #${String(newReceiptNumber).padStart(6, '0')}`,
-            parentTransactionId: newTxRef.id,
-            pujaseraId: pujaseraId,
-        });
-    }
-
-    // Handle table updates if it's a catalog order to be paid at cashier
-    if (isFromCatalog && paymentMethod === 'kasir' && tableId) {
-        const tableRef = db.doc(`stores/${pujaseraId}/tables/${tableId}`);
-        batch.update(tableRef, {
-            'currentOrder.transactionId': newTxRef.id
-        });
-    } else if (tableId && paymentMethod !== 'Belum Dibayar') { // For POS orders
-         const tableRef = db.doc(`stores/${pujaseraId}/tables/${tableId}`);
-         batch.update(tableRef, {
-            status: 'Terisi',
-            currentOrder: {
-                items: cart,
-                totalAmount: totalAmount,
-                orderTime: newTransactionData.createdAt,
-                transactionId: newTxRef.id
-            }
-        });
-    }
-
-    // Handle token deduction
-    const settingsDoc = await db.doc('appSettings/transactionFees').get();
-    const feeSettings = settingsDoc.data() || {};
+    const feeSettingsDoc = await db.doc('appSettings/transactionFees').get();
+    const feeSettings = feeSettingsDoc.data() || {};
     const feePercentage = feeSettings.feePercentage ?? 0.005;
     const minFeeRp = feeSettings.minFeeRp ?? 500;
     const maxFeeRp = feeSettings.maxFeeRp ?? 2500;
     const tokenValueRp = feeSettings.tokenValueRp ?? 1000;
-    const feeFromPercentage = totalAmount * feePercentage;
-    const feeCappedAtMin = Math.max(feeFromPercentage, minFeeRp);
-    const feeCappedAtMax = Math.min(feeCappedAtMin, maxFeeRp);
-    const transactionFee = feeCappedAtMax / tokenValueRp;
-    batch.update(pujaseraStoreRef, { 
-        transactionCounter: FieldValue.increment(1),
-        pradanaTokenBalance: FieldValue.increment(-transactionFee)
-    });
+
+    const batch = db.batch();
+    const parentTransactionId = db.collection('dummy').doc().id; // Generate a shared ID for this order group
+
+    for (const tenantId in itemsByTenant) {
+        const tenantInfo = itemsByTenant[tenantId];
+        const tenantItems = tenantInfo.items;
+        const tenantStoreRef = db.doc(`stores/${tenantId}`);
+        const tenantStoreDoc = await tenantStoreRef.get();
+        if (!tenantStoreDoc.exists) {
+            logger.warn(`Tenant store with ID ${tenantId} not found. Skipping.`);
+            continue;
+        }
+        const tenantData = tenantStoreDoc.data()!;
+        const tenantCounter = tenantData.transactionCounter || 0;
+        const newReceiptNumber = tenantCounter + 1;
+
+        const subtotal = tenantItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        
+        // Calculate tax and service fee based on tenant's settings
+        const taxRate = tenantData.financialSettings?.taxPercentage ?? 0;
+        const serviceRate = tenantData.financialSettings?.serviceFeePercentage ?? 0;
+        const taxAmount = subtotal * (taxRate / 100);
+        const serviceFeeAmount = subtotal * (serviceRate / 100);
+        const totalAmount = subtotal + taxAmount + serviceFeeAmount;
+        
+        const newTransactionRef = db.collection('stores').doc(tenantId).collection('transactions').doc();
+        
+        batch.set(newTransactionRef, {
+            receiptNumber: newReceiptNumber,
+            storeId: tenantId,
+            customerId: customer.id || 'N/A',
+            customerName: customer.name || 'Guest',
+            staffId: 'catalog-system',
+            createdAt: new Date().toISOString(),
+            items: tenantItems,
+            subtotal,
+            taxAmount,
+            serviceFeeAmount,
+            discountAmount: 0,
+            totalAmount: totalAmount,
+            paymentMethod,
+            status: 'Diproses',
+            notes: `Pesanan dari Katalog Publik #${String(parentTransactionId).substring(0,6)}`,
+            parentTransactionId,
+            pujaseraId: pujaseraId,
+        });
+
+        const feeFromPercentage = totalAmount * feePercentage;
+        const feeCappedAtMin = Math.max(feeFromPercentage, minFeeRp);
+        const feeCappedAtMax = Math.min(feeCappedAtMin, maxFeeRp);
+        const transactionFee = feeCappedAtMax / tokenValueRp;
+        
+        batch.update(tenantStoreRef, { 
+            transactionCounter: increment(1),
+            pradanaTokenBalance: increment(-transactionFee)
+        });
+    }
 
     await batch.commit();
+    logger.info(`Successfully processed catalog order and distributed to ${Object.keys(itemsByTenant).length} tenants.`);
 }
 
 

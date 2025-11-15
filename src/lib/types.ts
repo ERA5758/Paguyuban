@@ -132,6 +132,10 @@ export type Transaction = {
   status: TransactionStatus;
   generatedFollowUpText?: string;
   pujaseraGroupSlug?: string;
+  itemsStatus?: { [key: string]: 'Diproses' | 'Siap Diambil' }; // For pujasera kitchen status tracking
+  notes?: string;
+  parentTransactionId?: string;
+  pujaseraId?: string;
 };
 
 export type TransactionItem = {
@@ -141,18 +145,15 @@ export type TransactionItem = {
     price: number;
     notes?: string;
     storeId?: string; // Pujasera context: which store this item belongs to
+    storeName?: string;
 }
 
 export type CartItem = TransactionItem;
 
 export type OrderPayload = {
-    storeId: string;
+    storeId: string; // This will be the pujaseraId
     customer: Customer;
     cart: CartItem[];
-    subtotal: number;
-    taxAmount: number;
-    serviceFeeAmount: number;
-    totalAmount: number;
     paymentMethod: 'kasir' | 'qris';
 };
 
@@ -195,7 +196,7 @@ export type ChallengePeriod = {
 
 export type TableStatus = 'Tersedia' | 'Terisi' | 'Dipesan' | 'Menunggu Dibersihkan';
 
-export type TableOrderCustomer = Pick<Customer, 'id' | 'name' | 'phone' | 'avatarUrl'>;
+export type TableOrderCustomer = Pick<Customer, 'id' | 'name' | 'phone'>;
 
 export type TableOrder = {
   items: CartItem[];
@@ -203,6 +204,7 @@ export type TableOrder = {
   orderTime: string; // ISO 8601
   customer?: TableOrderCustomer;
   paymentMethod?: 'kasir' | 'qris';
+  transactionId?: string; // Link to the transaction in the POS
 };
 
 export type Table = {
