@@ -136,6 +136,8 @@ export type Transaction = {
   notes?: string;
   parentTransactionId?: string;
   pujaseraId?: string;
+  deliveryOption: 'pickup' | 'delivery';
+  deliveryAddress?: string;
 };
 
 export type TransactionItem = {
@@ -159,6 +161,8 @@ export type OrderPayload = {
     serviceFeeAmount: number;
     totalAmount: number;
     paymentMethod: 'kasir' | 'qris';
+    deliveryOption: 'pickup' | 'delivery';
+    deliveryAddress?: string;
 };
 
 export type PendingOrder = {

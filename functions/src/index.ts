@@ -5,6 +5,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
 import { getFirestore, FieldValue, Timestamp, increment } from "firebase-admin/firestore";
 import { initializeApp, getApps } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 import { subDays } from "date-fns";
 import { format } from "date-fns/format";
 import { id as idLocale } from "date-fns/locale";
@@ -15,6 +16,7 @@ if (getApps().length === 0) {
     initializeApp();
 }
 const db = getFirestore();
+const adminAuth = getAuth();
 
 interface WhatsappSettings {
   deviceId?: string;
@@ -137,7 +139,7 @@ export const processIndividualTenantOrder = onDocumentCreated("PujaseraIndividua
 });
 
 async function handleIndividualPujaseraOrder(payload: any) {
-    const { pujaseraId, customer, cart, paymentMethod } = payload;
+    const { pujaseraId, customer, cart, paymentMethod, deliveryOption, deliveryAddress } = payload;
     if (!pujaseraId || !customer || !cart || !Array.isArray(cart) || cart.length === 0) {
         throw new Error("Data pesanan individual tidak lengkap.");
     }
@@ -208,6 +210,8 @@ async function handleIndividualPujaseraOrder(payload: any) {
             notes: `Pesanan dari Katalog Publik #${String(parentTransactionId).substring(0,6)}`,
             parentTransactionId,
             pujaseraId: pujaseraId,
+            deliveryOption: deliveryOption || 'pickup',
+            deliveryAddress: deliveryAddress || '',
         });
 
         // Deduct token from each tenant based on their transaction amount

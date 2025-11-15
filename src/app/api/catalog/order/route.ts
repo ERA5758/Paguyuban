@@ -9,10 +9,14 @@ export async function POST(req: NextRequest) {
     const { db } = getFirebaseAdmin();
     try {
         const payload: OrderPayload = await req.json();
-        const { storeId: pujaseraId, customer, cart, paymentMethod } = payload;
+        const { storeId: pujaseraId, customer, cart, paymentMethod, deliveryOption, deliveryAddress } = payload;
 
-        if (!pujaseraId || !customer || !cart || cart.length === 0 || !paymentMethod) {
+        if (!pujaseraId || !customer || !cart || cart.length === 0 || !paymentMethod || !deliveryOption) {
             return NextResponse.json({ error: 'Data pesanan tidak lengkap.' }, { status: 400 });
+        }
+        
+        if (deliveryOption === 'delivery' && !deliveryAddress) {
+            return NextResponse.json({ error: 'Alamat pengiriman diperlukan untuk opsi pengiriman.' }, { status: 400 });
         }
 
         // Use the new queue for individual tenant processing

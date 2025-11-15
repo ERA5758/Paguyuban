@@ -6,7 +6,7 @@ import type { Store, Product, RedemptionOption, Customer, OrderPayload, CartItem
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
-import { Store as StoreIcon, PackageX, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare, QrCode, Phone } from 'lucide-react';
+import { Store as StoreIcon, PackageX, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare, QrCode, Phone, Bike, PersonStanding } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger } from '@/components/ui/sheet';
@@ -221,7 +221,7 @@ function OrderStatusCard({ order, onComplete }: { order: TableOrder, onComplete:
                 <CardTitle className="flex items-center gap-2 text-amber-700">
                     <Loader className="animate-spin"/> Pesanan Anda Sedang Diproses
                 </CardTitle>
-                <CardDescription>Pesanan Anda telah diterima oleh dapur. Mohon tunggu panggilan dari kasir untuk pengambilan.</CardDescription>
+                <CardDescription>Pesanan Anda telah diterima oleh dapur. Mohon tunggu notifikasi selanjutnya.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="space-y-2">
@@ -303,6 +303,8 @@ export default function CatalogPage() {
     const [loggedInCustomer, setLoggedInCustomer] = React.useState<Customer | null>(null);
     const [activeOrder, setActiveOrder] = React.useState<TableOrder | null>(null);
     const [paymentMethod, setPaymentMethod] = React.useState<'kasir' | 'qris'>('kasir');
+    const [deliveryOption, setDeliveryOption] = React.useState<'pickup' | 'delivery'>('pickup');
+    const [deliveryAddress, setDeliveryAddress] = React.useState('');
     const [isQrisDialogOpen, setIsQrisDialogOpen] = React.useState(false);
 
     const sessionKey = `chika-customer-session-${slug}`;
@@ -423,7 +425,12 @@ export default function CatalogPage() {
 
     const handleCreateOrder = async () => {
         if (!loggedInCustomer || !pujasera || cart.length === 0) return;
-        setIsQrisDialogOpen(false); // Close QRIS dialog if open
+        if (deliveryOption === 'delivery' && !deliveryAddress.trim()) {
+            toast({ variant: 'destructive', title: 'Alamat Diperlukan', description: 'Silakan masukkan alamat pengiriman.' });
+            return;
+        }
+
+        setIsQrisDialogOpen(false);
         setIsSubmittingOrder(true);
         try {
             const payload: OrderPayload = {
@@ -432,6 +439,8 @@ export default function CatalogPage() {
                 cart: cart,
                 subtotal: cartSubtotal, taxAmount, serviceFeeAmount, totalAmount,
                 paymentMethod: paymentMethod,
+                deliveryOption: deliveryOption,
+                deliveryAddress: deliveryOption === 'delivery' ? deliveryAddress : '',
             };
             const response = await fetch('/api/catalog/order', {
                 method: 'POST',
@@ -443,10 +452,11 @@ export default function CatalogPage() {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Gagal membuat pesanan.');
             }
-            const result = await response.json();
             
             toast({ title: 'Pesanan Berhasil Dibuat!', description: 'Pesanan Anda sedang diproses. Silakan lanjutkan pembayaran.' });
             setCart([]);
+            setDeliveryAddress('');
+            
         } catch (error) {
             toast({ variant: 'destructive', title: 'Gagal Membuat Pesanan', description: (error as Error).message });
         } finally {
@@ -568,7 +578,7 @@ export default function CatalogPage() {
                                                                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setNoteProduct(itemInCart)}><MessageSquare className="h-4 w-4" /></Button>
                                                             </div>
                                                         ) : (
-                                                            <Button variant="outline" className="w-full" onClick={() => addToCart(product, tenant.id)} disabled={!!activeOrder}>Tambah</Button>
+                                                            <Button variant="outline" className="w-full" onClick={() => addToCart(product, tenant)} disabled={!!activeOrder}>Tambah</Button>
                                                         )
                                                     ) : (
                                                         <Button variant="outline" className="w-full" disabled>Stok Habis</Button>
@@ -643,6 +653,27 @@ export default function CatalogPage() {
                     
                     {loggedInCustomer ? (
                         <div className="space-y-4">
+                            <RadioGroup value={deliveryOption} onValueChange={(value: 'pickup' | 'delivery') => setDeliveryOption(value)} className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <RadioGroupItem value="pickup" id="del-pickup" className="peer sr-only" />
+                                    <Label htmlFor="del-pickup" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                                        <PersonStanding className="mb-3 h-6 w-6"/> Diambil Sendiri
+                                    </Label>
+                                </div>
+                                <div>
+                                    <RadioGroupItem value="delivery" id="del-delivery" className="peer sr-only" />
+                                    <Label htmlFor="del-delivery" className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer`}>
+                                        <Bike className="mb-3 h-6 w-6"/> Dikirim
+                                    </Label>
+                                </div>
+                            </RadioGroup>
+                            {deliveryOption === 'delivery' && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="delivery-address">Alamat Pengiriman</Label>
+                                    <Textarea id="delivery-address" placeholder="Masukkan alamat lengkap Anda..." value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} />
+                                </div>
+                            )}
+
                             <RadioGroup value={paymentMethod} onValueChange={(value: 'kasir' | 'qris') => setPaymentMethod(value)} className="grid grid-cols-2 gap-4">
                                 <div>
                                     <RadioGroupItem value="kasir" id="pay-kasir" className="peer sr-only" />
