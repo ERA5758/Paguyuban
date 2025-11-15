@@ -8,8 +8,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import PwaInstaller from '@/components/Pwa-installer';
 
 export const metadata: Metadata = {
-  title: 'PAGUYUBAN TENANT',
-  description: 'Platform untuk Paguyuban Tenant',
+  title: 'PAGUYUBAN UMKM',
+  description: 'Platform untuk Paguyuban UMKM',
   manifest: '/manifest.json',
 };
 
