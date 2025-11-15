@@ -161,6 +161,7 @@ async function handleIndividualPujaseraOrder(payload: any) {
     const batch = db.batch();
     const parentTransactionId = db.collection('dummy').doc().id; 
     let totalPointsEarned = 0;
+    let grandTotalAmount = 0;
 
     for (const tenantId in itemsByTenant) {
         const tenantInfo = itemsByTenant[tenantId];
@@ -185,6 +186,8 @@ async function handleIndividualPujaseraOrder(payload: any) {
         const serviceFeeAmount = subtotal * (serviceRate / 100);
         const totalAmount = subtotal + taxAmount + serviceFeeAmount;
         
+        grandTotalAmount += totalAmount; // Accumulate total amount for points calculation
+        
         const newTransactionRef = db.collection('stores').doc(tenantId).collection('transactions').doc();
         
         batch.set(newTransactionRef, {
@@ -207,6 +210,7 @@ async function handleIndividualPujaseraOrder(payload: any) {
             pujaseraId: pujaseraId,
         });
 
+        // Deduct token from each tenant based on their transaction amount
         const feeFromPercentage = totalAmount * feePercentage;
         const feeCappedAtMin = Math.max(feeFromPercentage, minFeeRp);
         const feeCappedAtMax = Math.min(feeCappedAtMin, maxFeeRp);
@@ -216,15 +220,19 @@ async function handleIndividualPujaseraOrder(payload: any) {
             transactionCounter: increment(1),
             pradanaTokenBalance: increment(-transactionFee)
         });
-        
-        // Accumulate points based on each tenant's settings
-        const pointSettings = (tenantData.pointEarningSettings || { rpPerPoint: 10000 }) as PointEarningSettings;
-        if (pointSettings.rpPerPoint > 0) {
-            totalPointsEarned += Math.floor(totalAmount / pointSettings.rpPerPoint);
-        }
     }
     
-    // Update customer's central loyalty points
+    // Fetch pujasera settings for points calculation
+    const pujaseraStoreDoc = await db.doc(`stores/${pujaseraId}`).get();
+    if (pujaseraStoreDoc.exists) {
+        const pujaseraData = pujaseraStoreDoc.data()!;
+        const pointSettings = (pujaseraData.pointEarningSettings || { rpPerPoint: 10000 }) as PointEarningSettings;
+        if (pointSettings.rpPerPoint > 0) {
+            totalPointsEarned = Math.floor(grandTotalAmount / pointSettings.rpPerPoint);
+        }
+    }
+
+    // Update customer's central loyalty points under the pujasera document
     if (customer.id !== 'N/A' && totalPointsEarned > 0) {
         const customerRef = db.doc(`stores/${pujaseraId}/customers/${customer.id}`);
         batch.update(customerRef, { loyaltyPoints: increment(totalPointsEarned) });
