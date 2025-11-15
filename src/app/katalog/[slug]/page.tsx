@@ -1,12 +1,11 @@
-
 'use client';
 
 import * as React from 'react';
-import type { Store, Product, RedemptionOption, Customer, OrderPayload, CartItem, TableOrder, ProductInfo, TenantWithProducts } from '@/lib/types';
+import type { Store, Product, RedemptionOption, Customer, OrderPayload, CartItem, ProductInfo, TenantWithProducts, Transaction } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
-import { Store as StoreIcon, PackageX, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare, QrCode, Phone, Bike, PersonStanding } from 'lucide-react';
+import { Store as StoreIcon, PackageX, Sparkles, Send, Loader, Gift, ShoppingCart, PlusCircle, MinusCircle, LogIn, UserCircle, LogOut, Crown, Coins, Receipt, Percent, HandCoins, MessageSquare, QrCode, Phone, Bike, PersonStanding, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger } from '@/components/ui/sheet';
@@ -35,6 +34,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { formatWhatsappNumber } from '@/lib/utils';
 import Link from 'next/link';
+import { format, formatDistanceToNow } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
 
 // --- Pujasera Specific Types ---
 type PujaseraCatalogData = {
@@ -246,6 +247,99 @@ function NoteDialog({ open, onOpenChange, note, onSave }: { open: boolean, onOpe
     );
 }
 
+function CustomerOrdersSheet({ open, onOpenChange, customerId, pujaseraGroupSlug }: { open: boolean, onOpenChange: (open: boolean) => void, customerId: string, pujaseraGroupSlug: string }) {
+    const [orders, setOrders] = React.useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = React.useState(false);
+
+    React.useEffect(() => {
+        if (open) {
+            const fetchOrders = async () => {
+                setIsLoading(true);
+                try {
+                    const response = await fetch(`/api/customer-orders?customerId=${customerId}&pujaseraGroupSlug=${pujaseraGroupSlug}`);
+                    if (!response.ok) throw new Error("Gagal memuat pesanan");
+                    const data = await response.json();
+                    setOrders(data);
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            fetchOrders();
+        }
+    }, [open, customerId, pujaseraGroupSlug]);
+
+    const getStatusText = (status?: 'Diproses' | 'Siap Diambil'): { text: string, color: string } => {
+        switch (status) {
+            case 'Siap Diambil': return { text: 'Siap Diambil', color: 'text-green-600' };
+            case 'Diproses': return { text: 'Diproses', color: 'text-amber-600' };
+            default: return { text: 'Menunggu', color: 'text-muted-foreground' };
+        }
+    }
+
+    return (
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Riwayat Pesanan Anda</SheetTitle>
+                </SheetHeader>
+                <ScrollArea className="flex-grow my-4 pr-4 -mr-6">
+                    {isLoading ? (
+                        <div className="space-y-4">
+                            <Skeleton className="h-24 w-full" />
+                            <Skeleton className="h-24 w-full" />
+                            <Skeleton className="h-24 w-full" />
+                        </div>
+                    ) : orders.length > 0 ? (
+                        <div className="space-y-4">
+                            {orders.map(order => (
+                                <Card key={order.id}>
+                                    <CardHeader>
+                                        <CardTitle className="text-base">Pesanan #{order.receiptNumber}</CardTitle>
+                                        <CardDescription>{format(new Date(order.createdAt), "d MMMM yyyy, HH:mm", { locale: idLocale })}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="text-sm space-y-2">
+                                        <div className="space-y-1">
+                                            {order.items.map(item => (
+                                                <div key={item.productId} className="flex justify-between">
+                                                    <span>{item.quantity}x {item.productName}</span>
+                                                    <span>Rp {(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <Separator/>
+                                        <div className="flex justify-between font-bold">
+                                            <span>Total</span>
+                                            <span>Rp {order.totalAmount.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <div className="pt-2">
+                                            <h4 className="text-xs font-semibold mb-1 text-muted-foreground">STATUS PER TENANT</h4>
+                                            {Object.entries(order.itemsStatus || {}).map(([tenantId, status]) => {
+                                                const tenantName = order.items.find(i => i.storeId === tenantId)?.storeName || tenantId;
+                                                const statusInfo = getStatusText(status);
+                                                return (
+                                                    <div key={tenantId} className="flex justify-between items-center text-xs">
+                                                        <span>{tenantName}</span>
+                                                        <span className={`font-semibold ${statusInfo.color}`}>{statusInfo.text}</span>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center text-muted-foreground pt-10">Belum ada riwayat pesanan.</div>
+                    )}
+                </ScrollArea>
+            </SheetContent>
+        </Sheet>
+    )
+}
+
+
 // --- Main Page Component ---
 
 export default function CatalogPage() {
@@ -268,6 +362,7 @@ export default function CatalogPage() {
     const [deliveryOption, setDeliveryOption] = React.useState<'pickup' | 'delivery'>('pickup');
     const [deliveryAddress, setDeliveryAddress] = React.useState('');
     const [isQrisDialogOpen, setIsQrisDialogOpen] = React.useState(false);
+    const [isOrderHistoryOpen, setIsOrderHistoryOpen] = React.useState(false);
 
     const sessionKey = `chika-customer-session-${slug}`;
 
@@ -410,7 +505,7 @@ export default function CatalogPage() {
                 throw new Error(errorData.error || 'Gagal membuat pesanan.');
             }
             
-            toast({ title: 'Pesanan Berhasil Dibuat!', description: 'Pesanan Anda sedang diproses. Silakan lanjutkan pembayaran.' });
+            toast({ title: 'Pesanan Berhasil Dibuat!', description: 'Pesanan Anda sedang diproses. Anda bisa melihat statusnya di menu "Pesanan Saya".' });
             setCart([]);
             setDeliveryAddress('');
             
@@ -445,7 +540,9 @@ export default function CatalogPage() {
                 <div className="flex justify-between items-center container mx-auto max-w-4xl">
                      <div className="w-24 text-left">
                         {loggedInCustomer && (
-                            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground"><LogOut className="mr-2 h-4 w-4" />Keluar</Button>
+                             <Button variant="ghost" size="sm" onClick={() => setIsOrderHistoryOpen(true)}>
+                                <History className="mr-2 h-4 w-4" /> Pesanan Saya
+                            </Button>
                         )}
                     </div>
                     <div className='text-center'>
@@ -464,6 +561,10 @@ export default function CatalogPage() {
                                     <h4 className="font-medium leading-none">{loggedInCustomer.name}</h4>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground"><Coins className="h-4 w-4 text-primary" /> Poin: <span className="font-bold text-primary">{loggedInCustomer.loyaltyPoints}</span></div>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground"><Crown className="h-4 w-4 text-amber-500" /> Tier: <span className="font-bold text-foreground">{loggedInCustomer.memberTier}</span></div>
+                                    <Separator/>
+                                    <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start p-0 h-auto text-destructive">
+                                        <LogOut className="mr-2 h-4 w-4" /> Keluar
+                                    </Button>
                                 </PopoverContent>
                             </Popover>
                         ) : (
@@ -696,6 +797,15 @@ export default function CatalogPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+        )}
+        
+        {loggedInCustomer && pujasera?.pujaseraGroupSlug && (
+            <CustomerOrdersSheet 
+                open={isOrderHistoryOpen} 
+                onOpenChange={setIsOrderHistoryOpen}
+                customerId={loggedInCustomer.id}
+                pujaseraGroupSlug={pujasera.pujaseraGroupSlug}
+            />
         )}
         </>
     );

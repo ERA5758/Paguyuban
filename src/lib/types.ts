@@ -125,7 +125,7 @@ export type Transaction = {
   taxAmount: number;
   serviceFeeAmount: number;
   totalAmount: number; // subtotal - discountAmount
-  paymentMethod: 'Cash' | 'Card' | 'QRIS' | 'Belum Dibayar' | 'Lunas (Pusat)';
+  paymentMethod: 'Cash' | 'Card' | 'QRIS' | 'kasir' | 'qris' | 'Belum Dibayar' | 'Lunas (Pusat)';
   pointsEarned: number;
   pointsRedeemed: number;
   items: TransactionItem[];
@@ -137,7 +137,7 @@ export type Transaction = {
   notes?: string;
   parentTransactionId?: string;
   pujaseraId?: string;
-  deliveryOption: 'pickup' | 'delivery';
+  deliveryOption?: 'pickup' | 'delivery';
   deliveryAddress?: string;
 };
 
