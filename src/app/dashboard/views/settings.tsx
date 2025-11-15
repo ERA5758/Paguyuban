@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -320,11 +321,11 @@ export default function Settings() {
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline tracking-wider">Pengaturan Umum</CardTitle>
-                    <CardDescription>Pengaturan ini akan memengaruhi cara kerja fitur AI di {currentUser?.role === 'pujasera_admin' ? 'pujasera' : 'toko'} Anda.</CardDescription>
+                    <CardDescription>Pengaturan ini akan memengaruhi cara kerja fitur AI di {currentUser?.role === 'pujasera_admin' ? 'Paguyuban' : 'toko'} Anda.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
-                        <Label htmlFor='business-description' className='flex items-center gap-2'><Info className='h-4 w-4' /> Deskripsi Singkat {currentUser?.role === 'pujasera_admin' ? 'Pujasera' : 'Bisnis'}</Label>
+                        <Label htmlFor='business-description' className='flex items-center gap-2'><Info className='h-4 w-4' /> Deskripsi Singkat {currentUser?.role === 'pujasera_admin' ? 'Paguyuban' : 'Bisnis'}</Label>
                         <div className="flex items-start gap-2">
                             <Textarea 
                                 id='business-description'
