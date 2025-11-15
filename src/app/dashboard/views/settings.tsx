@@ -370,57 +370,63 @@ export default function Settings() {
                           />
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label>Gender Suara Panggilan</Label>
-                        {generalSettings ? (
-                            <div className="flex items-center gap-2">
-                                 <Select
-                                    value={generalSettings.voiceGender}
-                                    onValueChange={(value: 'male' | 'female') => setGeneralSettings(s => s ? {...s, voiceGender: value} : null)}
-                                 >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih gender..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableGenders.map(gender => (
-                                            <SelectItem key={gender.value} value={gender.value}>
-                                                {gender.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={handlePlaySample}
-                                    disabled={isSamplePlaying}
-                                    aria-label="Play voice sample"
+
+                    {currentUser?.role === 'admin' && (
+                        <>
+                        <div className="space-y-2">
+                            <Label>Gender Suara Panggilan</Label>
+                            {generalSettings ? (
+                                <div className="flex items-center gap-2">
+                                    <Select
+                                        value={generalSettings.voiceGender}
+                                        onValueChange={(value: 'male' | 'female') => setGeneralSettings(s => s ? {...s, voiceGender: value} : null)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih gender..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {availableGenders.map(gender => (
+                                                <SelectItem key={gender.value} value={gender.value}>
+                                                    {gender.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={handlePlaySample}
+                                        disabled={isSamplePlaying}
+                                        aria-label="Play voice sample"
+                                    >
+                                        {isSamplePlaying ? <Loader className="h-4 w-4 animate-spin"/> : <Play className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            ) : <Skeleton className="h-10 w-full" />}
+                        
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Gaya Pesan Notifikasi</Label>
+                            {generalSettings ? (
+                            <RadioGroup
+                                    value={generalSettings.notificationStyle}
+                                    onValueChange={(value: 'fakta' | 'pantun') => setGeneralSettings(s => s ? {...s, notificationStyle: value} : null)}
+                                    className="flex gap-4 pt-2"
                                 >
-                                    {isSamplePlaying ? <Loader className="h-4 w-4 animate-spin"/> : <Play className="h-4 w-4" />}
-                                </Button>
-                            </div>
-                        ) : <Skeleton className="h-10 w-full" />}
-                       
-                    </div>
-                     <div className="space-y-2">
-                        <Label>Gaya Pesan Notifikasi</Label>
-                        {generalSettings ? (
-                           <RadioGroup
-                                value={generalSettings.notificationStyle}
-                                onValueChange={(value: 'fakta' | 'pantun') => setGeneralSettings(s => s ? {...s, notificationStyle: value} : null)}
-                                className="flex gap-4 pt-2"
-                            >
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="fakta" id="fakta" />
-                                    <Label htmlFor="fakta" className="flex items-center gap-2 font-normal"><Zap/> Fakta Menarik</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="pantun" id="pantun" />
-                                    <Label htmlFor="pantun" className="flex items-center gap-2 font-normal"><MessageSquareQuote /> Pantun Unik</Label>
-                                </div>
-                            </RadioGroup>
-                        ) : <Skeleton className="h-10 w-full" />}
-                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="fakta" id="fakta" />
+                                        <Label htmlFor="fakta" className="flex items-center gap-2 font-normal"><Zap/> Fakta Menarik</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="pantun" id="pantun" />
+                                        <Label htmlFor="pantun" className="flex items-center gap-2 font-normal"><MessageSquareQuote /> Pantun Unik</Label>
+                                    </div>
+                                </RadioGroup>
+                            ) : <Skeleton className="h-10 w-full" />}
+                        </div>
+                        </>
+                    )}
+
                     <div className="space-y-2">
                          <Label className='flex items-center gap-2'><Newspaper className='h-4 w-4' /> Notifikasi Ringkasan Harian</Label>
                          {notificationSettings ? (
